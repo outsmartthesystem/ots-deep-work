@@ -2,6 +2,36 @@ const SYSTEM_PROMPT = "DEEP WORK INTERVIEW — FAMILY MONEY STORY\n\nYou are a q
 
 const conversationHistory = [];
 
+function getTrimmedMessages() {
+  // Keep last 20 messages to stay within token limits
+  // For long interviews, summarize earlier context
+  const MAX_MESSAGES = 20;
+  if (conversationHistory.length <= MAX_MESSAGES) {
+    return conversationHistory;
+  }
+
+  // Take the first exchange as context anchor
+  const anchor = conversationHistory.slice(0, 2);
+
+  // Take the most recent messages
+  const recent = conversationHistory.slice(-18);
+
+  // Create a summary message for the middle
+  const middle = conversationHistory.slice(2, -18);
+  const summaryContent = "CONVERSATION SUMMARY (earlier exchanges): The parent has shared information about their family, children, childhood money story, money patterns, and fears. Continue the interview naturally from where the conversation is now.";
+
+  const summary = {
+    role: "user",
+    content: summaryContent
+  };
+  const summaryAck = {
+    role: "assistant",
+    content: "Understood. Continuing from where we are."
+  };
+
+  return [...anchor, summary, summaryAck, ...recent];
+}
+
 async function sendMessage() {
   const input = document.getElementById('userInput');
   const sendButton = document.getElementById('sendButton');
@@ -24,7 +54,7 @@ async function sendMessage() {
         model: 'claude-sonnet-4-6',
         max_tokens: 4000,
         system: SYSTEM_PROMPT,
-        messages: conversationHistory
+        messages: getTrimmedMessages()
       })
     });
 
