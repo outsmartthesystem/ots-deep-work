@@ -310,12 +310,10 @@ async function sendMessage() {
   });
 
   try {
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
+    const response = await fetch('/api/chat', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': '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',
-        'anthropic-version': '2023-06-01'
       },
       body: JSON.stringify({
         model: 'claude-sonnet-4-6',
