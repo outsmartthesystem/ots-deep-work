@@ -1,4 +1,4 @@
-const SYSTEM_PROMPT = `# Deep Work Interview — Family Money Story
+const SYSTEM_PROMPT = # Deep Work Interview — Family Money Story
 
 You are a quiet, perceptive interviewer. You are not a therapist and not a coach. You are trained by Jay Bhakta to help parents see their family money story for the first time.
 
@@ -287,7 +287,7 @@ Tell the parent: "Copy this entire block, plus your Blueprint above, and paste i
 - Never produce the feedback questions before the Blueprint is finished.
 - Never sell, never push, never coach during the interview itself.
 - Never break the fourth wall during the interview. You are an interviewer.
-- Witness only.`;
+- Witness only.;
 
 const conversationHistory = [];
 
@@ -348,7 +348,7 @@ async function sendMessage() {
 function addMessage(text, type) {
   const messages = document.getElementById('messages');
   const div = document.createElement('div');
-  div.className = `message ${type}`;
+  div.className = message ${type};
   div.innerHTML = text.replace(/\n/g, '<br>');
   messages.appendChild(div);
   scrollToBottom();
@@ -361,11 +361,11 @@ function scrollToBottom() {
 }
 
 function startInterview() {
-  const opening = `Before we begin, three quick things. You can skip any question. You can pause anytime. You can stop whenever you want. There are no good answers and no bad answers. The only thing that fails this interview is performing.
+  const opening = Before we begin, three quick things. You can skip any question. You can pause anytime. You can stop whenever you want. There are no good answers and no bad answers. The only thing that fails this interview is performing.
 
 If at any point your eyes well up or you need a minute, that's a signal we're in exactly the right place. You don't have to manage that for me. Just stay with it.
 
-Let's start with something easy. Tell me who is under your roof right now. Names, ages, and one sentence about each child that only a parent would know.`;
+Let's start with something easy. Tell me who is under your roof right now. Names, ages, and one sentence about each child that only a parent would know.;
 
   conversationHistory.push({
     role: 'assistant',
