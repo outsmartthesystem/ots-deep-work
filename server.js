@@ -17,10 +17,9 @@ const transporter = nodemailer.createTransport({
 
 const SHEETS_WEBHOOK_URL = process.env.SHEETS_WEBHOOK_URL || '';
 
+// ─── ANTHROPIC CHAT ────────────────────────────────────────────────────────
 app.post('/api/chat', async (req, res) => {
   try {
-    // Use Haiku for feedback section (after blueprint) - avoids rate limits
-    // Use Sonnet for the interview itself - needs full reasoning capability
     const model = req.body.useFastModel
       ? 'claude-haiku-4-5-20251001'
       : 'claude-sonnet-4-6';
@@ -53,6 +52,7 @@ app.post('/api/chat', async (req, res) => {
   }
 });
 
+// ─── SAVE TRANSCRIPT ───────────────────────────────────────────────────────
 app.post('/api/save-transcript', async (req, res) => {
   const { parentName, parentEmail, messages, blueprintText, timestamp } = req.body;
 
@@ -127,5 +127,36 @@ ${transcriptFormatted}
   res.json({ success: true, results });
 });
 
+// ─── TEST ENDPOINT ─────────────────────────────────────────────────────────
+app.get('/api/test-save', async (req, res) => {
+  try {
+    const testPayload = {
+      parentName: 'Test Parent',
+      parentEmail: 'test@test.com',
+      messages: [
+        { role: 'assistant', content: 'Tell me who is under your roof.' },
+        { role: 'user', content: 'Two kids, ages 15 and 12.' },
+        { role: 'assistant', content: 'What is your biggest concern?' },
+        { role: 'user', content: 'That they will not be financially prepared.' }
+      ],
+      blueprintText: 'TEST BLUEPRINT — verifying save works.',
+      timestamp: new Date().toISOString()
+    };
+
+    const baseUrl = 'http://localhost:' + (process.env.PORT || 3000);
+    const response = await fetch(baseUrl + '/api/save-transcript', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(testPayload)
+    });
+
+    const result = await response.json();
+    res.json({ message: 'Test complete', results: result });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ─── START SERVER ──────────────────────────────────────────────────────────
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
