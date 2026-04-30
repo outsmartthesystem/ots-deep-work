@@ -67,35 +67,6 @@ app.post('/api/save-transcript', async (req, res) => {
     return `${role}:\n${m.content}\n`;
   }).join('\n─────────────────────────────────────\n\n');
 
-  app.get('/api/test-save', async (req, res) => {
-  try {
-    const testPayload = {
-      parentName: 'Test Parent',
-      parentEmail: 'test@test.com',
-      messages: [
-        { role: 'assistant', content: 'Tell me who is under your roof.' },
-        { role: 'user', content: 'Two kids, ages 15 and 12.' },
-        { role: 'assistant', content: 'What is your biggest concern?' },
-        { role: 'user', content: 'That they will not be financially prepared.' }
-      ],
-      blueprintText: 'TEST BLUEPRINT — verifying save works.',
-      timestamp: new Date().toISOString()
-    };
-
-    const baseUrl = 'http://localhost:' + (process.env.PORT || 3000);
-    const response = await fetch(baseUrl + '/api/save-transcript', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(testPayload)
-    });
-
-    const result = await response.json();
-    res.json({ message: 'Test complete', results: result });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
   const emailSubject = `OTS Deep Work Transcript — ${parentName || 'Anonymous'} — ${dateStr}`;
   const emailBody = `
 NEW FAMILY MONEY STORY INTERVIEW COMPLETED
