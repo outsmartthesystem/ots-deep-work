@@ -1,11 +1,26 @@
 const express = require('express');
 const fetch = require('node-fetch');
 const path = require('path');
+const nodemailer = require('nodemailer');
 
 const app = express();
 app.use(express.json({ limit: '10mb' }));
 app.use(express.static(path.join(__dirname)));
 
+// ─── EMAIL SETUP ───────────────────────────────────────────────────────────
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS
+  }
+});
+
+// ─── GOOGLE SHEETS SETUP ───────────────────────────────────────────────────
+// Uses a simple webhook URL from Make.com
+const SHEETS_WEBHOOK_URL = process.env.SHEETS_WEBHOOK_URL || '';
+
+// ─── ANTHROPIC CHAT ────────────────────────────────────────────────────────
 app.post('/api/chat', async (req, res) => {
   try {
     const response = await fetch('https://api.anthropic.com/v1/messages', {
@@ -19,8 +34,7 @@ app.post('/api/chat', async (req, res) => {
     });
 
     const data = await response.json();
-    console.log('Anthropic response status:', response.status);
-    console.log('Anthropic response:', JSON.stringify(data).substring(0, 500));
+    console.log('Anthropic status:', response.status);
 
     if (!response.ok) {
       return res.status(response.status).json(data);
@@ -28,9 +42,87 @@ app.post('/api/chat', async (req, res) => {
 
     res.json(data);
   } catch (error) {
-    console.error('Server error:', error.message);
+    console.error('Chat error:', error.message);
     res.status(500).json({ error: error.message });
   }
+});
+
+// ─── SAVE TRANSCRIPT ───────────────────────────────────────────────────────
+app.post('/api/save-transcript', async (req, res) => {
+  const { parentName, parentEmail, messages, blueprintText, timestamp } = req.body;
+
+  const date = new Date(timestamp || Date.now());
+  const dateStr = date.toLocaleDateString('en-US', {
+    year: 'numeric', month: 'long', day: 'numeric',
+    hour: '2-digit', minute: '2-digit'
+  });
+
+  // Format transcript for email
+  const transcriptFormatted = messages.map(m => {
+    const role = m.role === 'user' ? 'PARENT' : 'INTERVIEWER';
+    return `${role}:\n${m.content}\n`;
+  }).join('\n─────────────────────────────────────\n\n');
+
+  const emailSubject = `OTS Deep Work Transcript — ${parentName || 'Anonymous'} — ${dateStr}`;
+  const emailBody = `
+NEW FAMILY MONEY STORY INTERVIEW COMPLETED
+==========================================
+Parent Name: ${parentName || 'Not provided'}
+Parent Email: ${parentEmail || 'Not provided'}
+Date: ${dateStr}
+Messages exchanged: ${messages.length}
+
+==========================================
+BLUEPRINT GENERATED
+==========================================
+${blueprintText || 'Blueprint text not captured'}
+
+==========================================
+FULL TRANSCRIPT
+==========================================
+
+${transcriptFormatted}
+`;
+
+  const results = { email: false, sheets: false };
+
+  // 1. Send email
+  try {
+    await transporter.sendMail({
+      from: process.env.EMAIL_USER,
+      to: process.env.EMAIL_TO || process.env.EMAIL_USER,
+      subject: emailSubject,
+      text: emailBody
+    });
+    results.email = true;
+    console.log('Email sent for:', parentName);
+  } catch (err) {
+    console.error('Email error:', err.message);
+  }
+
+  // 2. Send to Google Sheets via Make.com webhook
+  if (SHEETS_WEBHOOK_URL) {
+    try {
+      await fetch(SHEETS_WEBHOOK_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          parentName: parentName || 'Anonymous',
+          parentEmail: parentEmail || '',
+          date: dateStr,
+          messageCount: messages.length,
+          blueprintSnippet: (blueprintText || '').substring(0, 500),
+          fullTranscript: transcriptFormatted
+        })
+      });
+      results.sheets = true;
+      console.log('Sent to Google Sheets for:', parentName);
+    } catch (err) {
+      console.error('Sheets webhook error:', err.message);
+    }
+  }
+
+  res.json({ success: true, results });
 });
 
 const PORT = process.env.PORT || 3000;
