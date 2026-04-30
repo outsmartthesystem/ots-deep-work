@@ -1,12 +1,10 @@
 const express = require('express');
 const fetch = require('node-fetch');
-const cors = require('cors');
 const path = require('path');
 
 const app = express();
-app.use(cors());
 app.use(express.json());
-app.use(express.static('.'));
+app.use(express.static(path.join(__dirname)));
 
 app.post('/api/chat', async (req, res) => {
   try {
@@ -22,13 +20,9 @@ app.post('/api/chat', async (req, res) => {
     const data = await response.json();
     res.json(data);
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'API call failed' });
+    console.error('API Error:', error);
+    res.status(500).json({ error: error.message });
   }
-});
-
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'index.html'));
 });
 
 const PORT = process.env.PORT || 3000;
