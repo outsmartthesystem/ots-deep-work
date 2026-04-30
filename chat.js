@@ -70,6 +70,11 @@ function renderAssistantMessage(text) {
     blueprintDiv.innerHTML = html;
     messages.appendChild(blueprintDiv);
     window.blueprintHTML = html;
+    // Extract plain text from blueprint HTML for email
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = html;
+    const blueprintText = tempDiv.innerText || tempDiv.textContent || '';
+    saveTranscript(blueprintText);
 
     // Extract any text after the closing blueprint div
     const endIdx = text.lastIndexOf('</div>');
@@ -180,6 +185,31 @@ function convertBlueprintToPDF(html) {
     .replace(/class="blueprint-cta"/g, 'class="pdf-cta"')
     .replace(/class="blueprint-cta-heading"/g, 'class="pdf-section-label"')
     .replace(/<button class="download-btn"[^>]*>.*?<\/button>/gs, '');
+}
+
+
+async function saveTranscript(blueprintText) {
+  try {
+    // Extract parent name and email from conversation if captured
+    const nameMsg = conversationHistory.find(m =>
+      m.role === 'user' && conversationHistory.indexOf(m) < 3
+    );
+
+    await fetch('/api/save-transcript', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        parentName: window.parentName || 'Unknown',
+        parentEmail: window.parentEmail || '',
+        messages: conversationHistory,
+        blueprintText: blueprintText,
+        timestamp: new Date().toISOString()
+      })
+    });
+    console.log('Transcript saved successfully');
+  } catch (err) {
+    console.error('Failed to save transcript:', err);
+  }
 }
 
 function startInterview() {
