@@ -7,7 +7,6 @@ const app = express();
 app.use(express.json({ limit: '10mb' }));
 app.use(express.static(path.join(__dirname)));
 
-// ─── EMAIL SETUP ───────────────────────────────────────────────────────────
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
@@ -16,13 +15,20 @@ const transporter = nodemailer.createTransport({
   }
 });
 
-// ─── GOOGLE SHEETS SETUP ───────────────────────────────────────────────────
-// Uses a simple webhook URL from Make.com
 const SHEETS_WEBHOOK_URL = process.env.SHEETS_WEBHOOK_URL || '';
 
-// ─── ANTHROPIC CHAT ────────────────────────────────────────────────────────
 app.post('/api/chat', async (req, res) => {
   try {
+    // Use Haiku for feedback section (after blueprint) - avoids rate limits
+    // Use Sonnet for the interview itself - needs full reasoning capability
+    const model = req.body.useFastModel
+      ? 'claude-haiku-4-5-20251001'
+      : 'claude-sonnet-4-6';
+
+    const body = { ...req.body };
+    delete body.useFastModel;
+    body.model = model;
+
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
@@ -30,11 +36,11 @@ app.post('/api/chat', async (req, res) => {
         'x-api-key': process.env.ANTHROPIC_API_KEY,
         'anthropic-version': '2023-06-01'
       },
-      body: JSON.stringify(req.body)
+      body: JSON.stringify(body)
     });
 
     const data = await response.json();
-    console.log('Anthropic status:', response.status);
+    console.log('Model used:', model, '| Status:', response.status);
 
     if (!response.ok) {
       return res.status(response.status).json(data);
@@ -47,7 +53,6 @@ app.post('/api/chat', async (req, res) => {
   }
 });
 
-// ─── SAVE TRANSCRIPT ───────────────────────────────────────────────────────
 app.post('/api/save-transcript', async (req, res) => {
   const { parentName, parentEmail, messages, blueprintText, timestamp } = req.body;
 
@@ -57,7 +62,6 @@ app.post('/api/save-transcript', async (req, res) => {
     hour: '2-digit', minute: '2-digit'
   });
 
-  // Format transcript for email
   const transcriptFormatted = messages.map(m => {
     const role = m.role === 'user' ? 'PARENT' : 'INTERVIEWER';
     return `${role}:\n${m.content}\n`;
@@ -86,7 +90,6 @@ ${transcriptFormatted}
 
   const results = { email: false, sheets: false };
 
-  // 1. Send email
   try {
     await transporter.sendMail({
       from: process.env.EMAIL_USER,
@@ -100,7 +103,6 @@ ${transcriptFormatted}
     console.error('Email error:', err.message);
   }
 
-  // 2. Send to Google Sheets via Make.com webhook
   if (SHEETS_WEBHOOK_URL) {
     try {
       await fetch(SHEETS_WEBHOOK_URL, {
