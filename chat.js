@@ -27,20 +27,49 @@ async function sendMessage() {
   conversationHistory.push({ role: 'user', content: userText });
 
   try {
-    const response = await fetch('/api/chat', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-6',
-        max_tokens: 4000,
-        system: SYSTEM_PROMPT,
-        messages: getMessages(),
-        useFastModel: window.blueprintDelivered
-      })
-    });
+    let data = null;
+    let attempts = 0;
+    const maxAttempts = 3;
 
-    const data = await response.json();
-    if (!data.content || !data.content[0]) throw new Error(JSON.stringify(data));
+    while (attempts < maxAttempts) {
+      attempts++;
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-6',
+          max_tokens: 4000,
+          system: SYSTEM_PROMPT,
+          messages: getMessages(),
+          useFastModel: window.blueprintDelivered
+        })
+      });
+
+      data = await response.json();
+
+      // If rate limited, wait and retry
+      if (data.error && data.error.type === 'rate_limit_error') {
+        if (attempts < maxAttempts) {
+          thinking.remove();
+          const waiting = addMessage(
+            'Taking a breath... continuing in a moment.',
+            'thinking'
+          );
+          await new Promise(resolve => setTimeout(resolve, 12000));
+          waiting.remove();
+          const newThinking = addThinking();
+          // Replace thinking reference
+          Object.assign(thinking, newThinking);
+          thinking.remove = newThinking.remove.bind(newThinking);
+          continue;
+        }
+      }
+      break;
+    }
+
+    if (!data || !data.content || !data.content[0]) {
+      throw new Error(JSON.stringify(data));
+    }
 
     const assistantMessage = data.content[0].text;
     thinking.remove();
@@ -49,7 +78,7 @@ async function sendMessage() {
 
   } catch (error) {
     thinking.remove();
-    addMessage('Something went wrong. Please try again. Error: ' + error.message, 'agent');
+    addMessage('Something went wrong. Please try again.', 'agent');
     console.error('Full error:', error);
   }
 
