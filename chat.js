@@ -29,7 +29,7 @@ async function sendMessage() {
   try {
     let data = null;
     let attempts = 0;
-    const maxAttempts = 3;
+    const maxAttempts = 4;
 
     while (attempts < maxAttempts) {
       attempts++;
@@ -47,21 +47,29 @@ async function sendMessage() {
 
       data = await response.json();
 
-      // If rate limited, wait and retry
+      // If rate limited, wait and retry with longer delays
       if (data.error && data.error.type === 'rate_limit_error') {
         if (attempts < maxAttempts) {
           thinking.remove();
-          const waiting = addMessage(
-            'Taking a breath... continuing in a moment.',
+          const waitSeconds = attempts * 20; // 20s, 40s, 60s
+          const waitEl = addMessage(
+            'One moment — taking a short pause before continuing...',
             'thinking'
           );
-          await new Promise(resolve => setTimeout(resolve, 12000));
-          waiting.remove();
-          const newThinking = addThinking();
-          // Replace thinking reference
-          Object.assign(thinking, newThinking);
-          thinking.remove = newThinking.remove.bind(newThinking);
+          await new Promise(resolve => setTimeout(resolve, waitSeconds * 1000));
+          waitEl.remove();
+          const newThink = addThinking();
+          thinking.remove = newThink.remove.bind(newThink);
           continue;
+        } else {
+          // Final failure - don't restart, just show gentle message
+          thinking.remove();
+          addMessage(
+            'We hit a brief pause. Please type your last message again and we will continue right where we left off.',
+            'agent'
+          );
+          sendButton.disabled = false;
+          return;
         }
       }
       break;
@@ -78,7 +86,11 @@ async function sendMessage() {
 
   } catch (error) {
     thinking.remove();
-    addMessage('Something went wrong. Please try again.', 'agent');
+    // Never restart - just ask them to retry their last message
+    addMessage(
+      'We hit a brief technical pause. Please type your last message again and we will continue right where we left off.',
+      'agent'
+    );
     console.error('Full error:', error);
   }
 
