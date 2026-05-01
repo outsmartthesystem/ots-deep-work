@@ -226,10 +226,45 @@ function convertBlueprintToPDF(html) {
     .replace(/<button class="download-btn"[^>]*>.*?<\/button>/gs, '');
 }
 
-function startInterview() {
+function startSession() {
+  const nameInput = document.getElementById('inputName');
+  const emailInput = document.getElementById('inputEmail');
+  const name = nameInput.value.trim();
+  const email = emailInput.value.trim();
+
+  if (!name) {
+    nameInput.focus();
+    nameInput.style.borderBottomColor = '#c9a96e';
+    return;
+  }
+
+  // Store globally
+  window.parentName = name;
+  window.parentEmail = email;
+
+  // Update header
+  document.getElementById('chat-heading').textContent = name + "'s Interview";
+
+  // Switch screens
+  document.getElementById('intake-screen').style.display = 'none';
+  const chatScreen = document.getElementById('chat-screen');
+  chatScreen.style.display = 'flex';
+
+  // Start the interview with name injected
   const opening = "Before we begin, three quick things. You can skip any question. You can pause anytime. You can stop whenever you want. There are no good answers and no bad answers. The only thing that fails this interview is performing.\n\nIf at any point your eyes well up or you need a minute, that's a signal we're in exactly the right place. You don't have to manage that for me. Just stay with it.\n\nThis will take about an hour, sometimes longer if you go deep. Find a private room. Phone face down. No spouse in the room. No background TV. You'll need it.\n\nLet's start with something easy. Tell me who is under your roof right now. Names, ages, and one sentence about each child that only a parent would know.";
-  conversationHistory.push({ role: 'assistant', content: opening });
+
+  // Add parent name as first user context so Claude knows who it's talking to
+  conversationHistory.push({
+    role: 'user',
+    content: 'My name is ' + name + '.'
+  });
+  conversationHistory.push({
+    role: 'assistant',
+    content: opening
+  });
+
   renderAssistantMessage(opening);
+  document.getElementById('userInput').focus();
 }
 
 document.getElementById('userInput').addEventListener('keydown', function(e) {
@@ -240,4 +275,13 @@ document.getElementById('userInput').addEventListener('input', function() {
   autoResize(this);
 });
 
-window.onload = startInterview;
+// Allow Enter on intake screen to submit
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter' && document.getElementById('intake-screen').style.display !== 'none') {
+    startSession();
+  }
+});
+
+window.onload = function() {
+  document.getElementById('inputName').focus();
+};
