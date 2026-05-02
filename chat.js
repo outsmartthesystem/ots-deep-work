@@ -276,6 +276,8 @@ End with exactly: <button class="download-btn" onclick="downloadBlueprint()">Dow
 
 Include AT LEAST 4 verbatim quotes from the parent. Their words are the mirror. Do not paraphrase.
 
+BLUEPRINT COMPLETION RULE: Once you begin outputting the Blueprint, you must complete every section all the way through to the closing button. Do not stop partway. Do not summarize and offer to continue. Do not say "let me know if you'd like the rest." If you can sense you are running long, write more concisely in remaining sections rather than truncating. The Blueprint must arrive whole or not at all. If the parent has not clearly said "wrap it up" or signaled they are done, do NOT start the Blueprint — ask Q27 first or hold for the explicit signal.
+
 NINE SECTIONS:
 
 1. WHO YOU ARE — One specific paragraph in their own words. Not generic. Pull from the whole interview.
@@ -372,7 +374,16 @@ function estimateQuestionProgress() {
 
 function isBlueprintTrigger(userText) {
   const lower = userText.toLowerCase().trim();
-  return lower.includes('wrap it up') || lower.includes('wrap up') || lower === 'done' || lower === "i'm done";
+  const explicitTriggers = ['wrap it up', 'wrap up', 'wrapup', 'done', "i'm done", 'im done', 'ready', 'finish', 'finished', 'finalize', 'complete', 'go ahead', 'no'];
+  return explicitTriggers.some(t => lower === t || lower === t + '.' || lower.startsWith(t + ' ') || lower.endsWith(' ' + t));
+}
+
+function isLateInInterview() {
+  // Once we're past roughly Q22, any user message could realistically trigger the Blueprint.
+  // The agent itself decides when to produce it based on parent signals. We just need to
+  // make sure the token budget is generous enough that the Blueprint never gets truncated.
+  const assistantTurns = conversationHistory.filter(m => m.role === 'assistant').length;
+  return assistantTurns >= 22;
 }
 
 async function sendMessage() {
@@ -400,9 +411,19 @@ async function sendMessage() {
 
   conversationHistory.push({ role: 'user', content: messageForApi });
 
-  // Determine token budget. Blueprint generation needs more room. Conversational turns are tight.
+  // Determine token budget. Blueprint generation needs lots of room. Conversational turns are tight.
+  // Late in the interview, any answer might trigger the Blueprint — so we ramp up the budget
+  // even on short answers to make sure the Blueprint never gets truncated mid-sentence.
   const blueprintIncoming = isBlueprintTrigger(userText);
-  const tokenBudget = blueprintIncoming || window.blueprintDelivered ? 4000 : 1200;
+  const lateInterview = isLateInInterview();
+  let tokenBudget;
+  if (window.blueprintDelivered) {
+    tokenBudget = 1500; // Feedback Q&A after blueprint
+  } else if (blueprintIncoming || lateInterview) {
+    tokenBudget = 6000; // Blueprint can be long; give it room
+  } else {
+    tokenBudget = 1200; // Conversational turn — keep responses tight
+  }
 
   try {
     let data = null;
