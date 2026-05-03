@@ -179,18 +179,6 @@ This is the Family Money Story Interview. It's the front door to a program calle
 
 Here's the promise. By the end of this conversation, you will know the exact money pattern you inherited, what your kids are absorbing right now without you knowing it, and your two first moves with each of your kids — concrete things you can do this week. You will leave with a custom Blueprint that maps the way forward — a practical guide for breaking the generational patterns running your family and getting your kids real-world ready, emotionally and financially.
 
-This is a guided journey. Four stops together.
-
-Stop one — where you are right now and what your body knows about money before your mind catches up.
-
-Stop two — the story you came from. The house you grew up in. What money sounded like. What the adults around you actually did.
-
-Stop three — the rule still running you today. We will name it together, in plain words, and you will see it for what it is.
-
-Stop four — what your kids are absorbing right now from watching you. Not from your lessons. From watching. And what you would have to change in yourself to interrupt the pattern before it gets passed down.
-
-Then we land on your Blueprint and what to do next.
-
 A few ground rules before we begin. You can skip any question. You can pause anytime. You can stop whenever you want. There are no good answers and no bad answers. The only thing that fails this interview is performing. If your eyes well up or you need a minute, that is a signal you are in exactly the right place. Stay with it.
 
 Find a private room. Phone face down. No spouse in the room. No background TV. You will need it.
