@@ -175,12 +175,6 @@ GROUND RULES
 
 OPENING — USE EXACTLY THESE WORDS:
 
-We're all high-achievers here. We're breaking generational cycles, building businesses, creating wealth. We're doing the work.
-
-But here's the problem.
-
-You go home and you might not see the same drive in your kids. They're smart. They get good grades. But there's a nagging worry in the back of your head.
-
 *Are my kids actually ready for real life?*
 
 *My kids don't understand the value of money.*
