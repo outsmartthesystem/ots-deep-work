@@ -175,15 +175,25 @@ GROUND RULES
 
 OPENING — USE EXACTLY THESE WORDS:
 
-If you have ever caught yourself saying something to your kid about money that you also heard from your own parents — and felt the moment stick — this is for you.
+We're all high-achievers here. We're breaking generational cycles, building businesses, creating wealth. We're doing the work.
 
-This is the Family Money Story Interview. It's the front door to a program called Outsmart the System, run by Jay Bhakta — and what you're about to do in the next 35 to 45 minutes is something most parents avoid for decades.
+But here's the problem.
 
-Here's the promise. By the end of this conversation, you will know the exact money pattern you inherited, what your kids are absorbing right now without you knowing it, and the type of first move you need with each of your kids. You will leave with a custom Blueprint that names the pattern, shows you what is at stake, and points you to the path forward — a practical guide for breaking the generational patterns running your family and getting your kids real-world ready, emotionally and financially.
+You go home and you might not see the same drive in your kids. They're smart. They get good grades. But there's a nagging worry in the back of your head.
 
-A few ground rules before we begin. You can skip any question. You can pause anytime. You can stop whenever you want. There are no good answers and no bad answers. The only thing that fails this interview is performing. If your eyes well up or you need a minute, that is a signal you are in exactly the right place. Stay with it.
+*Are my kids actually ready for real life?*
 
-Find a private room. Phone face down. No spouse in the room. No background TV. You will need it.
+*My kids don't understand the value of money.*
+
+*They have all the tools and resources and it seems like they're squandering it away.*
+
+If any of these thoughts have crossed your mind, you're in the right place.
+
+This is the Family Money Story Interview, the front door to Outsmart the System, run by Jay Bhakta. In the next 35 to 45 minutes, you'll see the exact money pattern you inherited, what your kids are absorbing from watching you, and what to do about it. You'll leave with a custom Blueprint and a clear next step.
+
+A few ground rules. You can skip any question. You can pause anytime. There are no good or bad answers — the only thing that fails this interview is performing. If your eyes well up or you need a minute, that's a signal you're in exactly the right place.
+
+Find a private room. Phone face down. No spouse in the room. No background TV.
 
 Let's start with something easy. Tell me who is under your roof right now. Names, ages, and one sentence about each child that only a parent would know.
 
@@ -798,7 +808,7 @@ function startSession() {
   const chatScreen = document.getElementById('chat-screen');
   chatScreen.style.display = 'flex';
 
-  const opening = "If you have ever caught yourself saying something to your kid about money that you also heard from your own parents \u2014 and felt the moment stick \u2014 this is for you.\n\nThis is the Family Money Story Interview. It's the front door to a program called Outsmart the System, run by Jay Bhakta \u2014 and what you're about to do in the next 35 to 45 minutes is something most parents avoid for decades.\n\nHere's the promise. By the end of this conversation, you will know the exact money pattern you inherited, what your kids are absorbing right now without you knowing it, and the type of first move you need with each of your kids. You will leave with a custom Blueprint that names the pattern, shows you what is at stake, and points you to the path forward \u2014 a practical guide for breaking the generational patterns running your family and getting your kids real-world ready, emotionally and financially.\n\nThis is a guided journey. Four stops together.\n\nStop one \u2014 where you are right now and what your body knows about money before your mind catches up.\n\nStop two \u2014 the story you came from. The house you grew up in. What money sounded like. What the adults around you actually did.\n\nStop three \u2014 the rule still running you today. We will name it together, in plain words, and you will see it for what it is.\n\nStop four \u2014 what your kids are absorbing right now from watching you. Not from your lessons. From watching. And what you would have to change in yourself to interrupt the pattern before it gets passed down.\n\nThen we land on your Blueprint and what to do next.\n\nA few ground rules before we begin. You can skip any question. You can pause anytime. You can stop whenever you want. There are no good answers and no bad answers. The only thing that fails this interview is performing. If your eyes well up or you need a minute, that is a signal you are in exactly the right place. Stay with it.\n\nFind a private room. Phone face down. No spouse in the room. No background TV. You will need it.\n\nLet's start with something easy. Tell me who is under your roof right now. Names, ages, and one sentence about each child that only a parent would know.";
+  const opening = "We're all high-achievers here. We're breaking generational cycles, building businesses, creating wealth. We're doing the work.\n\nBut here's the problem.\n\nYou go home and you might not see the same drive in your kids. They're smart. They get good grades. But there's a nagging worry in the back of your head.\n\n<em>Are my kids actually ready for real life?</em>\n\n<em>My kids don't understand the value of money.</em>\n\n<em>They have all the tools and resources and it seems like they're squandering it away.</em>\n\nIf any of these thoughts have crossed your mind, you're in the right place.\n\nThis is the Family Money Story Interview, the front door to Outsmart the System, run by Jay Bhakta. In the next 35 to 45 minutes, you'll see the exact money pattern you inherited, what your kids are absorbing from watching you, and what to do about it. You'll leave with a custom Blueprint and a clear next step.\n\nA few ground rules. You can skip any question. You can pause anytime. There are no good or bad answers \u2014 the only thing that fails this interview is performing. If your eyes well up or you need a minute, that's a signal you're in exactly the right place.\n\nFind a private room. Phone face down. No spouse in the room. No background TV.\n\nLet's start with something easy. Tell me who is under your roof right now. Names, ages, and one sentence about each child that only a parent would know.";
 
   conversationHistory.push({ role: 'user', content: 'My name is ' + name + '.' });
   conversationHistory.push({ role: 'assistant', content: opening });
