@@ -757,6 +757,11 @@ function scrollToBottom() {
   area.scrollTop = area.scrollHeight;
 }
 
+function scrollToTop() {
+  const area = document.getElementById('messagesArea');
+  area.scrollTop = 0;
+}
+
 function autoResize(el) {
   el.style.height = 'auto';
   el.style.height = Math.min(el.scrollHeight, 140) + 'px';
@@ -857,6 +862,10 @@ function startSession() {
   conversationHistory.push({ role: 'assistant', content: opening });
 
   renderAssistantMessage(opening);
+  // Override the scrollToBottom that just fired in renderAssistantMessage().
+  // On the very first render, we want the parent to see the TOP of the opening
+  // message — not the bottom of it. Subsequent messages keep using scrollToBottom.
+  setTimeout(scrollToTop, 50);
   document.getElementById('userInput').focus();
 }
 
