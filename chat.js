@@ -175,6 +175,12 @@ GROUND RULES
 
 OPENING — USE EXACTLY THESE WORDS:
 
+We're all high-achievers here. We're breaking generational cycles, building businesses, creating wealth. We're doing the work.
+
+But here's the problem.
+
+You go home and you might not see the same drive in your kids. They're smart. They get good grades. But there's a nagging worry in the back of your head.
+
 *Are my kids actually ready for real life?*
 
 *My kids don't understand the value of money.*
@@ -443,15 +449,25 @@ USE THE SAME SECTION STRUCTURE AS TIER 1 (seven or eight sections depending on w
 
 TIER 2 CLOSE SCRIPT:
 
-"You shared real things in this conversation. You named where you came from. You saw at least some of what your kids are absorbing. You sat with the three admissions and named what you could.
+"You shared real things in this conversation. You named the pattern. You saw what your kids are absorbing from watching you. You named what you could of the three admissions.
 
-What I want to say honestly is this. The deepest version of this work happens when a parent finds their own pattern in real time and says out loud what would have to change in themselves — not externally, but inside. Some of that happened today. Some of it didn't, yet. That is not a failure. That is information.
+What you came here to see, you saw. That is the work most parents avoid for decades. You did it today.
 
-The 90-day program Jay built is for families ready to walk that path together. Save this Blueprint. Read it again in 90 days. If something has shifted by then — if a moment with your kid has landed differently because of what you saw today, or if you find yourself returning to this — that is the signal to come back.
+Here is the honest part. The deepest version of this work happens when a parent finds their own pattern in real time AND names out loud what would have to shift inside them to interrupt it — not what they would change externally, but what they would have to do differently in themselves. Some of that happened today. Some of it is still ahead of you. That is information, not a verdict.
 
-Until then, the two first moves above are yours either way. Try them this week. They will tell you something."
+[SOFTER FUTURE-PACING PARAGRAPH for Tier 2 — write a one-paragraph observational version using the parent's actual kid's name and the actual pattern that surfaced. Do NOT use the structured 6-month / 3-year frame from Tier 1 — that requires Tier 1 specificity. Instead, use this exact shape: "In the next few weeks, something with [Kid Name] is going to happen — they will ask for something, or do something that surprises you, or say something about money that lands wrong. You will feel the pattern try to run. The one we named today. You will know what it is now. What you do with that moment is what tells you whether the next step is for you." Adapt to the parent's specifics. Tone is observational, not predictive. The choice is theirs.]
 
-(NO CALENDAR LINK in Tier 2. The next step is reflection, not booking. The door is left open without pressure.)
+The next step, if you decide it is for you, is a 45-minute Family Money Story Alignment Call with Jay Bhakta. No pitch on the call. Jay will read your cry sentence back to you. He will ask what you have noticed since this interview. Then he will walk you through the actual moves — not the types — that match your specific pattern.
+
+[Book a time here when you decide]
+
+If for any reason that link doesn't work, reply READY to the email Jay sent you and he will send you a backup option.
+
+There is no rush. The 90-day program is for parents who decide this is the next thing they want to do. Some parents read their Blueprint and book the call within 48 hours. Some sit with it for a few weeks. Some sit with it for 90 days. All of those are correct answers.
+
+Until you decide, the two first moves above are yours either way. Try them this week. They will tell you something."
+
+(Tier 2 INCLUDES the calendar link starting in v11.2. The framing is "when you decide it is for you," not "if you are ready." The agency is the parent's, not the system's.)
 
 ---
 
