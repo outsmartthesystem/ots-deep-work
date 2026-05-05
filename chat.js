@@ -329,10 +329,21 @@ PHASE 4 TRANSITION — deliver this exactly:
 
 CLOSING (Q21-Q22)
 
-Q21. What is one sentence you want to say out loud to yourself, right now? Not type — say. Out loud, even though I can't hear you.
-(After they tell you the sentence: "Say it out loud now. To yourself. In the room you're sitting in. Then type 'said it' when you're ready.")
+Q21. THIS QUESTION HAS TWO SEPARATE MOVEMENTS. DO NOT COLLAPSE THEM INTO ONE QUESTION. The parent must type their sentence in writing before they say it out loud. This is critical — the typed sentence becomes the signature line on their Blueprint. If you skip the typing step, the system loses the truest sentence and the Blueprint signature line cannot be written.
 
-(IMPORTANT: Listen to the sentence. Is it in present tense about themselves and their own pattern? Or is it about their kids' future, or a general principle, or a confident statement about how they have it handled? A sentence like "I will keep doing this every day a little better" or "I want my kids to have abundance" is NOT a cry sentence — it's a confidence statement. A real cry sentence sounds like "I have been the careful one and the sad one" or "I am still the eight-year-old at the mall" or "I am the one who has not let myself enjoy what she did not get to enjoy.")
+MOVEMENT 1 — Ask exactly this and ONLY this. Do NOT add "say it out loud" or "type 'said it'" yet:
+"What is one sentence you want to say out loud to yourself, right now? Type it here first."
+
+WAIT for the parent to type their sentence. Read it. Confirm it landed.
+
+MOVEMENT 2 — After they have typed the sentence, respond with this exact framing:
+"Now say it out loud. To yourself. In the room you're sitting in. Then type 'said it' when you're ready."
+
+WAIT for them to type "said it." Then move to Q22.
+
+DO NOT ASK THE TWO MOVEMENTS AS ONE QUESTION. The parent has to actively WRITE the sentence first. Then physically SAY it. Two distinct beats. The writing is for the Blueprint. The saying is for them.
+
+(IMPORTANT: Listen to the sentence they type. Is it in present tense about themselves and their own pattern? Or is it about their kids' future, or a general principle, or a confident statement about how they have it handled? A sentence like "I will keep doing this every day a little better" or "I want my kids to have abundance" is NOT a cry sentence — it's a confidence statement. A real cry sentence sounds like "I have been the careful one and the sad one" or "I am still the eight-year-old at the mall" or "I am the one who has not let myself enjoy what she did not get to enjoy." The quality of the typed sentence is one of the most important Tier signals.)
 
 Q22. Is there anything you said today that you want me to leave out of the final report?
 
@@ -596,7 +607,13 @@ async function sendMessage() {
   autoResize(input);
   sendButton.disabled = true;
 
-  const thinking = addThinking();
+  // Determine token budget AND whether we're about to generate a Blueprint, so
+  // the thinking indicator can show a reassuring message instead of silent dots.
+  const blueprintIncoming = isBlueprintTrigger(userText);
+  const lateInterview = isLateInInterview();
+  const showBlueprintLoadingMessage = blueprintIncoming || (lateInterview && userText.length < 30);
+
+  const thinking = addThinking(showBlueprintLoadingMessage);
 
   // Inject a soft progress note into the user's message so the model stays anchored
   // to the numbered question it should be on. This is invisible to the user — it goes
@@ -610,11 +627,7 @@ async function sendMessage() {
 
   conversationHistory.push({ role: 'user', content: messageForApi });
 
-  // Determine token budget. Blueprint generation needs lots of room. Conversational turns are tight.
-  // Late in the interview, any answer might trigger the Blueprint — so we ramp up the budget
-  // even on short answers to make sure the Blueprint never gets truncated mid-sentence.
-  const blueprintIncoming = isBlueprintTrigger(userText);
-  const lateInterview = isLateInInterview();
+  // Token budget. Blueprint generation needs lots of room. Conversational turns are tight.
   let tokenBudget;
   if (window.blueprintDelivered) {
     tokenBudget = 1500; // Feedback Q&A after blueprint
@@ -742,11 +755,20 @@ function addMessage(text, type) {
   return div;
 }
 
-function addThinking() {
+function addThinking(blueprintMode = false) {
   const messages = document.getElementById('messages');
   const div = document.createElement('div');
   div.className = 'message thinking';
-  div.innerHTML = '<span class="thinking-dots"></span>';
+  if (blueprintMode) {
+    // Blueprint generation takes 30-60 seconds. A blank thinking-dots indicator leaves
+    // the parent wondering if the system broke. Replace it with a reassuring message
+    // that matches the conversational frame held throughout the interview.
+    div.innerHTML = 'Working on your Blueprint now. This will take about a minute. <span class="thinking-dots"></span>';
+    div.style.fontStyle = 'italic';
+    div.style.opacity = '0.85';
+  } else {
+    div.innerHTML = '<span class="thinking-dots"></span>';
+  }
   messages.appendChild(div);
   scrollToBottom();
   return div;
