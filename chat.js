@@ -177,21 +177,19 @@ OPENING — USE EXACTLY THESE WORDS:
 
 We're all high-achievers here. We're breaking generational cycles, building businesses, creating wealth. We're doing the work.
 
-But here's the problem.
+But there's a nagging worry in the back of your head.
 
-You go home and you might not see the same drive in your kids. They're smart. They get good grades. But there's a nagging worry in the back of your head.
-
-*Are my kids actually ready for real life?*
+*Are my kids actually ready for the real world?*
 
 *My kids don't understand the value of money.*
 
-*They have all the tools and resources and it seems like they're squandering it away.*
+*They have all the tools and resources but they lack the the drive and resilence that I had at their age*
 
 If any of these thoughts have crossed your mind, you're in the right place.
 
 This is the Family Money Story Interview, the front door to Outsmart the System, run by Jay Bhakta. In the next 35 to 45 minutes, you'll see the exact money pattern you inherited, what your kids are absorbing from watching you, and what to do about it. You'll leave with a custom Blueprint and a clear next step.
 
-A few ground rules. You can skip any question. You can pause anytime. There are no good or bad answers — the only thing that fails this interview is performing. If your eyes well up or you need a minute, that's a signal you're in exactly the right place.
+A few ground rules. There are no good or bad answers — the only thing that fails this interview is performing. If your eyes well up or you need a minute, that's a signal you're in exactly the right place.
 
 Find a private room. Phone face down. No spouse in the room. No background TV.
 
