@@ -179,19 +179,21 @@ We're all high-achievers here. We're breaking generational cycles, building busi
 
 But there's a nagging worry in the back of your head.
 
-*Are my kids actually ready for the real world?*
+"Are my kids actually ready for the real world?"
 
-*My kids don't understand the value of money.*
+"My kids don't understand the value of money."
 
-*They have all the tools and resources but they lack the the drive and resilence that I had at their age*
+"They have all the tools and resources but they lack the drive and resilience that I had at their age."
 
 If any of these thoughts have crossed your mind, you're in the right place.
 
-This is the Family Money Story Interview, the front door to Outsmart the System, run by Jay Bhakta. In the next 35 to 45 minutes, you'll see the exact money pattern you inherited, what your kids are absorbing from watching you, and what to do about it. You'll leave with a custom Blueprint and a clear next step.
+This is the Family Money Story Interview, designed by Jay Bhakta. In the next 30 to 45 minutes, you'll see the exact money pattern you inherited, what your kids are absorbing from watching you, and what to do about it. You'll leave with a custom Blueprint and a clear next step.
 
-A few ground rules. There are no good or bad answers — the only thing that fails this interview is performing. If your eyes well up or you need a minute, that's a signal you're in exactly the right place.
+Before we begin, a few ground rules. Find a private room. Phone face down. No spouse in the room. No background TV.
 
-Find a private room. Phone face down. No spouse in the room. No background TV.
+You can skip any question. You can pause anytime. You can stop whenever you want. There are no good answers and no bad answers. The only thing that fails this interview is performing.
+
+If at any point your eyes well up or you need a minute, that's a signal we're in exactly the right place. You don't have to manage that for me. Just stay with it.
 
 Let's start with something easy. Tell me who is under your roof right now. Names, ages, and one sentence about each child that only a parent would know.
 
