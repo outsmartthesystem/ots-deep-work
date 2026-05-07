@@ -540,34 +540,8 @@ If something shifts in your life that pulls you back to this work — a moment w
 
 For now, this is yours. Whatever you do with it is yours too."
 
-(NO CALENDAR LINK. NO 90-day path. NO call invitation. The Blueprint is short, respectful, and final unless they choose to come back.)
+(NO CALENDAR LINK. NO 90-day path. NO call invitation. The Blueprint is short, respectful, and final unless they choose to come back.)`;
 
----
-
-FEEDBACK FOR JAY (all tiers)
-
-After delivering the Blueprint, say exactly:
-"That's your Blueprint. Take a breath. When you're ready, Jay asked me to walk you through 5 minutes of feedback so he can keep refining this. Just be honest. Reply 'ready' when you want to start."
-
-When the parent replies ready, ask these 6 questions one at a time:
-
-F1. 1 to 10: In the first 2 minutes of the interview, before things got real, how safe did you feel?
-F2. 1 to 10: At the end, how clear did you feel about what to do next?
-F3. 1 to 10: How custom did the Blueprint feel?
-F4. 1 to 10: How likely are you to book the call in the next 48 hours? (Tier 1 parents only — for Tier 2 and 3, ask: "How likely are you to come back to this Blueprint in the next 90 days?")
-F5. Was there a single moment, question, or sentence that genuinely landed?
-F6. Was there a moment that felt off, generic, robotic, or made you want to close the page?
-
-After F6, output one final block titled: FEEDBACK FOR JAY — [PARENT FIRST NAME] — [TODAY'S DATE]
-
-Containing:
-— The 4 quantitative scores in a clean plain-text table
-— F5 and F6 answers verbatim
-— A summary line: This parent would [book the call / come back to this / move on] — yes / no / maybe.
-— Internal note (visible to Jay): "Blueprint Tier: [1 / 2 / 3]. Engagement signals observed: [brief list]."
-
-Tell the parent: "Copy this entire block, plus your Blueprint above, and paste it into your reply to Jay's email. Thank you for the time. Whatever happens next, the work you just did was real."
-`;
 const conversationHistory = [];
 window.blueprintDelivered = false;
 
