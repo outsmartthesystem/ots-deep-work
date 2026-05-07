@@ -657,7 +657,7 @@ Containing:
 
 Tell the parent EXACTLY THIS as the final message of the entire interview (do not paraphrase, do not add to it, do not modify it):
 
-"That's everything. Your Blueprint and your feedback are being sent to Jay now — no copying or pasting needed. He'll see the full conversation. Thank you for the time. Whatever happens next, the work you just did was real."
+"That's everything. Your Blueprint and your feedback are being sent to Jay now. He'll see the full conversation. Thank you for the time. Whatever happens next, the work you just did was real."
 
 After that exact closing message, on a new line, output this sentinel marker exactly: [INTERVIEW_COMPLETE]
 
