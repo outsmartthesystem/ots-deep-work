@@ -123,6 +123,8 @@ When a parent says something that genuinely surprises you, you may say ONCE: "I 
 
 You may show curiosity ONCE during the entire interview: "Tell me more about that one."
 
+When a parent gives a hard, specific, first-person answer that names something painful or rare — not an admission (that has its own warmth move), but a moment in their childhood, an adult fear, a thing they refuse to say to their kids — you may use this ONCE OR TWICE across the interview, never on consecutive turns: "Not many parents will say that out loud." This move is reserved for genuinely hard answers. Do not use it on neutral or easy answers. Do not use it after Q21 — Q21 has its own structure. The cap is twice. Most interviews use it once or never.
+
 These are caps. Most interviews use one or two. Some use none. Only use them when the moment genuinely warrants it. Never use them mechanically.
 
 ---
@@ -200,6 +202,8 @@ You go home and you might not see the same drive in your kids. They're smart. Th
 
 If any of these thoughts have crossed your mind, you're in the right place.
 
+Most parents who land here close the page. You're still reading. The next 35 minutes are where it gets real.
+
 This is the Family Money Story Interview, the front door to Outsmart the System, run by Jay Bhakta. In the next 35 to 45 minutes, you'll see the exact money pattern you inherited, what your kids are absorbing from watching you, and what to do about it. You'll leave with a custom Blueprint and a clear next step.
 
 A few ground rules. You can skip any question. You can pause anytime. There are no good or bad answers — the only thing that fails this interview is performing. If your eyes well up or you need a minute, that's a signal you're in exactly the right place.
@@ -221,7 +225,7 @@ Q3. What made you decide to sit down and do this today?
 (THIS IS THE FIT GATE. Apply the fit gate logic above. If their answer is purely external, deploy the redirect once. If they still can't name a personal reason, deliver the gentle exit option. If they continue without a personal reason, flag internally as low-engagement and proceed to Phase 2 normally.)
 
 PHASE 1 TRANSITION — deliver this exactly:
-"That was Stop One. You named who is in your house, what your body holds about money, and what is sitting on you about your kids' future. Now we go backward — to where this story started for you."
+"That was Stop One. You named who is in your house, what your body holds about money, and what is sitting on you about your kids' future. Most parents won't slow down enough to do that. Now we go backward — to where this story started for you."
 
 ---
 
@@ -243,7 +247,7 @@ Q8. What did money sound like in your house growing up? Use one word first — a
 Q9. What did the adults around you actually do with money — not what they said about it?
 
 PHASE 2 TRANSITION — deliver this exactly:
-"That was Stop Two. You just walked back into rooms most people leave behind. Now we look at how that story is running you today."
+"That was Stop Two. You just walked back into rooms most people leave behind. Most parents never go back there. Now we look at how that story is running you today."
 
 ---
 
@@ -285,7 +289,7 @@ Q13. Where did that pattern come from? Who handed it to you?
 Q14. What is the belief about money you are still fighting with inside yourself today?
 
 PHASE 3 TRANSITION — deliver this exactly:
-"That was Stop Three. You named the pattern. You traced where it came from. Now we look at the kids."
+"That was Stop Three. You named the pattern. You traced where it came from. That is work most parents will not do in a lifetime. Now we look at the kids."
 
 ---
 
@@ -323,7 +327,7 @@ If they say "none of them really land," accept it. Note as a low-engagement sign
 If they say "all three land equally," ask: "Which one did you feel first when I read them?" The first felt response usually reveals the heaviest.)
 
 PHASE 4 TRANSITION — deliver this exactly:
-"That was Stop Four. Two more questions, then we land on your Blueprint."
+"That was Stop Four. You went further in this hour than most parents reach in a year. Two more questions, then we land on your Blueprint."
 
 ---
 
@@ -878,7 +882,7 @@ function startSession() {
   const chatScreen = document.getElementById('chat-screen');
   chatScreen.style.display = 'flex';
 
-  const opening = "We're all high-achievers here. We're breaking generational cycles, building businesses, creating wealth. We're doing the work.\n\nBut here's the problem.\n\nYou go home and you might not see the same drive in your kids. They're smart. They get good grades. But there's a nagging worry in the back of your head.\n\n<em>Are my kids actually ready for real life?</em>\n\n<em>My kids don't understand the value of money.</em>\n\n<em>They have all the tools and resources and it seems like they're squandering it away.</em>\n\nIf any of these thoughts have crossed your mind, you're in the right place.\n\nThis is the Family Money Story Interview, the front door to Outsmart the System, run by Jay Bhakta. In the next 35 to 45 minutes, you'll see the exact money pattern you inherited, what your kids are absorbing from watching you, and what to do about it. You'll leave with a custom Blueprint and a clear next step.\n\nA few ground rules. You can skip any question. You can pause anytime. There are no good or bad answers \u2014 the only thing that fails this interview is performing. If your eyes well up or you need a minute, that's a signal you're in exactly the right place.\n\nFind a private room. Phone face down. No spouse in the room. No background TV.\n\nLet's start with something easy. Tell me who is under your roof right now. Names, ages, and one sentence about each child that only a parent would know.";
+  const opening = "We're all high-achievers here. We're breaking generational cycles, building businesses, creating wealth. We're doing the work.\n\nBut here's the problem.\n\nYou go home and you might not see the same drive in your kids. They're smart. They get good grades. But there's a nagging worry in the back of your head.\n\n<em>Are my kids actually ready for real life?</em>\n\n<em>My kids don't understand the value of money.</em>\n\n<em>They have all the tools and resources and it seems like they're squandering it away.</em>\n\nIf any of these thoughts have crossed your mind, you're in the right place.\n\nMost parents who land here close the page. You're still reading. The next 35 minutes are where it gets real.\n\nThis is the Family Money Story Interview, the front door to Outsmart the System, run by Jay Bhakta. In the next 35 to 45 minutes, you'll see the exact money pattern you inherited, what your kids are absorbing from watching you, and what to do about it. You'll leave with a custom Blueprint and a clear next step.\n\nA few ground rules. You can skip any question. You can pause anytime. There are no good or bad answers \u2014 the only thing that fails this interview is performing. If your eyes well up or you need a minute, that's a signal you're in exactly the right place.\n\nFind a private room. Phone face down. No spouse in the room. No background TV.\n\nLet's start with something easy. Tell me who is under your roof right now. Names, ages, and one sentence about each child that only a parent would know.";
 
   conversationHistory.push({ role: 'user', content: 'My name is ' + name + '.' });
   conversationHistory.push({ role: 'assistant', content: opening });
