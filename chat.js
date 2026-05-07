@@ -657,7 +657,7 @@ Containing:
 
 Tell the parent EXACTLY THIS as the final message of the entire interview (do not paraphrase, do not add to it, do not modify it):
 
-"That's everything. Your Blueprint and your feedback are being sent to Jay now. He'll see the full conversation. Thank you for the time. Whatever happens next, the work you just did was real."
+"That's everything. Your Blueprint and your feedback are being sent to Jay now — no copying or pasting needed. He'll see the full conversation. Thank you for the time. Whatever happens next, the work you just did was real."
 
 After that exact closing message, on a new line, output this sentinel marker exactly: [INTERVIEW_COMPLETE]
 
@@ -670,8 +670,11 @@ window.transcriptSent = false; // guards against double-sends if the wrapper ret
 // ─────────────────────────────────────────────────────────────────────────────
 // MAKE WEBHOOK INTEGRATION
 // ─────────────────────────────────────────────────────────────────────────────
-
-const MAKE_WEBHOOK_URL = 'https://hook.us2.make.com/uoahwr4boopr2skbkkb2a1n1sne63bc8';
+// Replace the URL below with the webhook URL from your Make scenario.
+// To get the URL: in Make, create a new scenario with a "Custom webhook" trigger,
+// click "Add" to create a webhook, copy the URL, and paste it here.
+// The webhook URL looks like: https://hook.us1.make.com/xxxxxxxxxxxxxxxx
+const MAKE_WEBHOOK_URL = 'PASTE_YOUR_MAKE_WEBHOOK_URL_HERE';
 
 // The sentinel marker the model outputs when the interview is complete.
 // The wrapper detects this marker, strips it from the displayed message, and
@@ -698,7 +701,8 @@ function stripSentinel(message) {
 
 function buildTranscriptPayload() {
   // Assemble a clean, structured payload of everything Jay needs to see.
-  // Make receives this as JSON and can format it however the email scenario specifies.
+  // Field names match the existing Make Google Sheet column structure (camelCase).
+  // Make receives this as JSON and writes a row to the Sheet plus sends the email.
 
   // Build a human-readable transcript by walking conversationHistory.
   const readableTranscript = conversationHistory.map(turn => {
@@ -713,21 +717,42 @@ function buildTranscriptPayload() {
     return `${speaker}:\n${content}`;
   }).join('\n\n─────────────────────────────────────\n\n');
 
-  // The final assistant message (which contains the Blueprint and FEEDBACK FOR JAY block)
-  // is the most important single piece for Jay's review. Pull it out for easy access.
+  // The final assistant message contains the Blueprint and FEEDBACK FOR JAY block.
+  // It's the most important single piece for Jay's review.
   const lastAssistantMessage = [...conversationHistory]
     .reverse()
     .find(turn => turn.role === 'assistant');
+  const finalMessage = lastAssistantMessage ? lastAssistantMessage.content : '';
+
+  // Build a short snippet from the Blueprint for at-a-glance scanning in the
+  // Google Sheet. Pull the first ~400 characters of the Blueprint section,
+  // which usually captures the WHO YOU ARE paragraph. The full content is
+  // available in the fullTranscript and final_message fields.
+  let blueprintSnippet = '';
+  const blueprintStart = finalMessage.indexOf('blueprint-name');
+  if (blueprintStart !== -1) {
+    // Pull a chunk after the title block.
+    const afterTitle = finalMessage.substring(blueprintStart);
+    // Strip HTML tags for a plain-text snippet readable in a spreadsheet cell.
+    const plainText = afterTitle.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+    blueprintSnippet = plainText.substring(0, 400) + (plainText.length > 400 ? '...' : '');
+  } else {
+    // Fallback: just take the first 400 chars of the final message.
+    const plainText = finalMessage.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+    blueprintSnippet = plainText.substring(0, 400) + (plainText.length > 400 ? '...' : '');
+  }
 
   return {
-    parent_name: window.parentFirstName || 'Unknown',
-    interview_date: new Date().toLocaleDateString('en-US', {
+    parentName: window.parentFirstName || 'Unknown',
+    parentEmail: window.parentEmail || '',
+    date: new Date().toLocaleDateString('en-US', {
       year: 'numeric', month: 'long', day: 'numeric'
     }),
-    interview_timestamp: new Date().toISOString(),
-    full_transcript: readableTranscript,
-    final_message: lastAssistantMessage ? lastAssistantMessage.content : '',
-    turn_count: conversationHistory.filter(t => t.role === 'assistant').length,
+    timestamp: new Date().toISOString(),
+    messageCount: conversationHistory.filter(t => t.role === 'assistant').length,
+    blueprintSnippet: blueprintSnippet,
+    fullTranscript: readableTranscript,
+    finalMessage: finalMessage,
   };
 }
 
