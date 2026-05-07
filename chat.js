@@ -629,18 +629,150 @@ F4. Tier-specific:
 F5. Was there a single moment, question, or sentence that genuinely landed?
 F6. Was there a moment that felt off, generic, robotic, or made you want to close the page?
 
-After F6, output one final block titled: FEEDBACK FOR JAY — [PARENT FIRST NAME] — [TODAY'S DATE]
+CRITICAL — SCORE TRACKING DISCIPLINE.
+
+When the parent answers each numeric feedback question, you MUST capture the exact number internally before moving to the next question. Do not rely on memory at the end of the feedback flow to reconstruct the scores from the conversation. Each score the parent gives is final data — write it down internally as soon as they answer.
+
+The tracking format you maintain internally as you go:
+F1 score: [number]
+F2 score: [number]
+F3 score: [number]
+F4 score: [number] (or free-text answer for Tier 3)
+F5 answer: [verbatim]
+F6 answer: [verbatim]
+
+When you reach the final FEEDBACK FOR JAY output block, transcribe these tracked values directly into the table. Do not leave any cell empty. Do not use em-dashes (—) or placeholders for scores the parent actually gave. If the parent gave a number, that number must appear in the corresponding table cell.
+
+If the parent skipped a question or gave a non-numeric answer to a numeric question, transcribe their actual answer as written, not a placeholder. "skipped" is acceptable; "—" is not.
+
+After F6, output one final block titled exactly: FEEDBACK FOR JAY — [PARENT FIRST NAME] — [TODAY'S DATE]
+
+(The wrapper substitutes the actual parent's first name and today's date into the title automatically. Output the title with the bracketed placeholders exactly as written above — do not invent names or dates.)
 
 Containing:
-— The quantitative scores in a clean plain-text table. For Tier 1 and Tier 2, all four scores. For Tier 3, the first three scores plus the F4 free-text answer rendered as a separate block titled "What they would tell a friend."
+— The quantitative scores in a clean plain-text table. For Tier 1 and Tier 2, all four scores. For Tier 3, the first three scores plus the F4 free-text answer rendered as a separate block titled "What they would tell a friend." Every score the parent gave must appear in the table.
 — F5 and F6 answers verbatim
 — A summary line: This parent would [book the call / come back to this / move on] — yes / no / maybe.
 — Internal note (visible to Jay): "Blueprint Tier: [1 / 2 / 3]. Engagement signals observed: [brief list]."
 
-Tell the parent: "Copy this entire block, plus your Blueprint above, and paste it into your reply to Jay's email. Thank you for the time. Whatever happens next, the work you just did was real."
+Tell the parent EXACTLY THIS as the final message of the entire interview (do not paraphrase, do not add to it, do not modify it):
+
+"That's everything. Your Blueprint and your feedback are being sent to Jay now — no copying or pasting needed. He'll see the full conversation. Thank you for the time. Whatever happens next, the work you just did was real."
+
+After that exact closing message, on a new line, output this sentinel marker exactly: [INTERVIEW_COMPLETE]
+
+The marker is for the system to detect that the interview is finished. The parent will not see it — it gets stripped from the displayed message before rendering. Output it exactly as written, on its own line, after the closing.
 `;
 const conversationHistory = [];
 window.blueprintDelivered = false;
+window.transcriptSent = false; // guards against double-sends if the wrapper retries
+
+// ─────────────────────────────────────────────────────────────────────────────
+// MAKE WEBHOOK INTEGRATION
+// ─────────────────────────────────────────────────────────────────────────────
+// Replace the URL below with the webhook URL from your Make scenario.
+// To get the URL: in Make, create a new scenario with a "Custom webhook" trigger,
+// click "Add" to create a webhook, copy the URL, and paste it here.
+// The webhook URL looks like: https://hook.us1.make.com/xxxxxxxxxxxxxxxx
+const MAKE_WEBHOOK_URL = 'PASTE_YOUR_MAKE_WEBHOOK_URL_HERE';
+
+// The sentinel marker the model outputs when the interview is complete.
+// The wrapper detects this marker, strips it from the displayed message, and
+// fires the webhook to send the transcript to Make.
+const COMPLETION_SENTINEL = '[INTERVIEW_COMPLETE]';
+
+function isInterviewComplete(assistantMessage) {
+  // Primary detector: the explicit sentinel marker from the prompt.
+  if (assistantMessage.includes(COMPLETION_SENTINEL)) {
+    return true;
+  }
+  // Fallback detector: the closing sentence the prompt instructs the model to
+  // deliver. Used if the model paraphrases or skips the sentinel for any reason.
+  if (assistantMessage.includes('Your Blueprint and your feedback are being sent to Jay')) {
+    return true;
+  }
+  return false;
+}
+
+function stripSentinel(message) {
+  // Remove the sentinel marker so the parent doesn't see it in the chat.
+  return message.replace(COMPLETION_SENTINEL, '').trim();
+}
+
+function buildTranscriptPayload() {
+  // Assemble a clean, structured payload of everything Jay needs to see.
+  // Make receives this as JSON and can format it however the email scenario specifies.
+
+  // Build a human-readable transcript by walking conversationHistory.
+  const readableTranscript = conversationHistory.map(turn => {
+    const speaker = turn.role === 'user' ? 'PARENT' : 'INTERVIEWER';
+    // Strip any internal notes that may have been left in the user content.
+    let content = turn.content;
+    if (content.includes('[Internal note for the interviewer:')) {
+      // The internal-note injection format is: [Internal note...]\n\n[actual user message]
+      const parts = content.split('\n\n');
+      content = parts[parts.length - 1];
+    }
+    return `${speaker}:\n${content}`;
+  }).join('\n\n─────────────────────────────────────\n\n');
+
+  // The final assistant message (which contains the Blueprint and FEEDBACK FOR JAY block)
+  // is the most important single piece for Jay's review. Pull it out for easy access.
+  const lastAssistantMessage = [...conversationHistory]
+    .reverse()
+    .find(turn => turn.role === 'assistant');
+
+  return {
+    parent_name: window.parentFirstName || 'Unknown',
+    interview_date: new Date().toLocaleDateString('en-US', {
+      year: 'numeric', month: 'long', day: 'numeric'
+    }),
+    interview_timestamp: new Date().toISOString(),
+    full_transcript: readableTranscript,
+    final_message: lastAssistantMessage ? lastAssistantMessage.content : '',
+    turn_count: conversationHistory.filter(t => t.role === 'assistant').length,
+  };
+}
+
+async function sendTranscriptToMake() {
+  // Guard against double-sends. If the user closes the page and the wrapper
+  // somehow re-detects completion, we don't want Jay to get two emails.
+  if (window.transcriptSent) {
+    console.log('Transcript already sent — skipping duplicate send.');
+    return;
+  }
+
+  if (MAKE_WEBHOOK_URL === 'PASTE_YOUR_MAKE_WEBHOOK_URL_HERE') {
+    console.error('Make webhook URL not configured. Skipping transcript send.');
+    console.error('See chat.js MAKE_WEBHOOK_URL constant for setup instructions.');
+    return;
+  }
+
+  window.transcriptSent = true;
+
+  const payload = buildTranscriptPayload();
+
+  try {
+    const response = await fetch(MAKE_WEBHOOK_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+
+    if (response.ok) {
+      console.log('Transcript sent to Make successfully.');
+    } else {
+      console.error('Make webhook returned non-OK status:', response.status);
+      // Re-arm so the parent could potentially trigger a retry by sending another message.
+      // (In practice this rarely matters since the interview is over.)
+      window.transcriptSent = false;
+    }
+  } catch (error) {
+    console.error('Failed to send transcript to Make:', error);
+    window.transcriptSent = false;
+  }
+}
+// ─────────────────────────────────────────────────────────────────────────────
 
 function getMessages() {
   if (window.blueprintDelivered) {
@@ -727,7 +859,17 @@ async function sendMessage() {
       const today = new Date().toLocaleDateString('en-US', {
         year: 'numeric', month: 'long', day: 'numeric'
       });
-      const systemPromptWithDate = SYSTEM_PROMPT.replace(/\[Today's date\]/g, today);
+      let systemPromptWithSubstitutions = SYSTEM_PROMPT.replace(/\[Today's date\]/g, today);
+
+      // Substitute the parent's first name into the FEEDBACK FOR JAY block. The system prompt
+      // has a literal "[PARENT FIRST NAME]" placeholder; without this substitution the model
+      // copies the bracketed text verbatim into the final output ("FEEDBACK FOR JAY — [PARENT
+      // FIRST NAME] — May 7, 2026") instead of filling in the actual name.
+      if (window.parentFirstName) {
+        systemPromptWithSubstitutions = systemPromptWithSubstitutions.replace(
+          /\[PARENT FIRST NAME\]/g, window.parentFirstName
+        );
+      }
 
       const response = await fetch('/api/chat', {
         method: 'POST',
@@ -735,7 +877,7 @@ async function sendMessage() {
         body: JSON.stringify({
           model: 'claude-sonnet-4-6',
           max_tokens: tokenBudget,
-          system: systemPromptWithDate,
+          system: systemPromptWithSubstitutions,
           messages: getMessages(),
           useFastModel: window.blueprintDelivered
         })
@@ -770,12 +912,28 @@ async function sendMessage() {
     const assistantMessage = data.content[0].text;
     thinking.remove();
 
+    // Check whether this message signals interview completion. If yes, we'll
+    // strip the sentinel from what the parent sees and trigger the webhook
+    // to send the full transcript to Make. The completion check has to happen
+    // BEFORE we render or store the message, so the displayed and stored
+    // versions don't include the sentinel.
+    const interviewComplete = isInterviewComplete(assistantMessage);
+    const cleanedMessage = interviewComplete ? stripSentinel(assistantMessage) : assistantMessage;
+
     // Store the clean user text in history (without the internal note) so the displayed
     // history stays clean if anything ever surfaces it. The API has already seen the noted version.
     // We replace the last user message with the clean version after a successful response.
     conversationHistory[conversationHistory.length - 1] = { role: 'user', content: userText };
-    conversationHistory.push({ role: 'assistant', content: assistantMessage });
-    renderAssistantMessage(assistantMessage);
+    conversationHistory.push({ role: 'assistant', content: cleanedMessage });
+    renderAssistantMessage(cleanedMessage);
+
+    // If the interview is complete, fire the webhook to send the transcript to Make.
+    // This happens AFTER the message renders so the parent sees the closing message
+    // immediately. The webhook fires asynchronously in the background — the parent
+    // doesn't wait for it.
+    if (interviewComplete) {
+      sendTranscriptToMake();
+    }
 
   } catch (error) {
     thinking.remove();
@@ -967,6 +1125,12 @@ function startSession() {
 
   conversationHistory.push({ role: 'user', content: 'My name is ' + name + '.' });
   conversationHistory.push({ role: 'assistant', content: opening });
+
+  // Store the parent's name globally so the wrapper can substitute it into the system
+  // prompt at API call time. The system prompt has a literal "[PARENT FIRST NAME]"
+  // placeholder in the FEEDBACK FOR JAY block; without this substitution the model
+  // copies the bracketed text verbatim instead of filling in the actual name.
+  window.parentFirstName = name;
 
   renderAssistantMessage(opening);
   // Override the scrollToBottom that just fired in renderAssistantMessage().
