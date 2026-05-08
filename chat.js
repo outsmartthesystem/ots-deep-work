@@ -261,7 +261,13 @@ STRUCTURAL TRANSITION (always delivered):
 
 OPTIONAL HERO PREPEND. If — and only if — BOTH of the following are true, you MAY prepend a single sentence to the structural transition above:
 — Q2 produced a specific body response (not "nothing," "fine," or generic one-word)
-— Q3 produced a personal reason on the first ask (no fit-gate redirect was needed)
+— Q3 produced a personal reason — either on the first ask, OR after the fit-gate redirect, as long as the reason that surfaced is genuinely personal (about the parent's own life, their own kids, their own pattern) and not still external (helping someone else, generic "I want to learn"). The redirect itself is not a low-engagement signal — many engaged parents need one prompt to move from "external reason" to "the real personal reason underneath." What disqualifies the hero prepend is when the second answer is STILL external, not the fact that a redirect happened.
+
+EXAMPLES OF QUALIFYING Q3 ANSWERS:
+— "I want my kids to have the skills I never did" (personal — qualifies)
+— "I'm watching patterns from my childhood show up in my kid and I don't know how to interrupt them" (personal — qualifies)
+— "Helping a friend who recommended this" (external — does not qualify, even after redirect surfaces "and I want my kids to be better with money than I was" which is more generic than personal)
+— "Just curious about the methodology" (external — does not qualify)
 
 If both are true, prepend exactly: "Most parents won't slow down enough to do that."
 
@@ -297,10 +303,21 @@ STRUCTURAL TRANSITION (always delivered):
 "That was Stop Two. You walked back into rooms most people leave behind. Now we look at how that story is running you today."
 
 OPTIONAL HERO PREPEND. If — and only if — BOTH of the following are true, you MAY prepend a single sentence to the structural transition above:
-— Q4 had first-person ownership with a specific consequence to themselves (not third-person, not philosophical)
+— Q4 produced a specific, concrete consequence — either to the parent themselves OR to their child, named specifically (a real outcome, a real cost, a real scenario). What disqualifies is philosophical or abstract answers ("they'll struggle in life," "they won't reach their potential," "fewer options"). Grammar is not the test — specificity is.
 — Q7 produced a specific memory with sensory detail (a real room, a real age, a real scene)
 
-If both are true, prepend exactly: "Most parents never go back there."
+EXAMPLES OF QUALIFYING Q4 ANSWERS:
+— "They'll experience unnecessary trauma and waste years recovering from it before they can build" (specific — qualifies despite third-person grammar)
+— "I would still be in massive credit card debt and not have started my business" (specific to parent — qualifies)
+— "She'll marry someone for financial security instead of love, like I almost did" (specific scenario — qualifies)
+
+EXAMPLES OF NON-QUALIFYING Q4 ANSWERS:
+— "They'll feel limited, with fewer options" (philosophical — does not qualify)
+— "They will struggle financially" (generic — does not qualify)
+— "It would set them back" (vague — does not qualify)
+— "Same mistakes I've made, etc" (no specific consequence named — does not qualify)
+
+If both criteria are met, prepend exactly: "Most parents never go back there."
 
 So a high-engagement Phase 2 sounds like:
 "That was Stop Two. Most parents never go back there. You walked back into rooms most people leave behind. Now we look at how that story is running you today."
@@ -824,6 +841,134 @@ async function sendTranscriptToMake() {
 }
 // ─────────────────────────────────────────────────────────────────────────────
 
+// ─────────────────────────────────────────────────────────────────────────────
+// SESSION PERSISTENCE
+// ─────────────────────────────────────────────────────────────────────────────
+// Saves session state to localStorage after every turn so the parent can
+// recover from a refresh, crash, or accidental tab close. The 35-45 minute
+// interview is too long to lose to a connection blip — and the emotional
+// disclosures involved make losing one a relationship-damaging event.
+//
+// Storage shape:
+//   ots_session_v1: {
+//     sessionId, parentFirstName, parentEmail, conversationHistory,
+//     blueprintDelivered, transcriptSent, savedAt (ISO timestamp)
+//   }
+//
+// Sessions older than 24 hours are cleared on page load (the parent has moved
+// on by then). Sessions where the transcript was already sent are not eligible
+// for resume — they're complete. Sessions are always per-browser (localStorage
+// is origin-scoped, no cross-device sync).
+
+const SESSION_STORAGE_KEY = 'ots_session_v1';
+const SESSION_MAX_AGE_HOURS = 24;
+
+function generateSessionId() {
+  // Short readable ID with timestamp prefix so duplicate detection is easy.
+  return 'ots_' + Date.now() + '_' + Math.random().toString(36).substring(2, 9);
+}
+
+function saveSession() {
+  // Called after every turn. Cheap operation — localStorage writes are fast.
+  if (!window.sessionId) return; // No active session to save.
+
+  const state = {
+    sessionId: window.sessionId,
+    parentFirstName: window.parentFirstName || '',
+    parentEmail: window.parentEmail || '',
+    conversationHistory: conversationHistory,
+    blueprintDelivered: window.blueprintDelivered || false,
+    transcriptSent: window.transcriptSent || false,
+    savedAt: new Date().toISOString(),
+  };
+
+  try {
+    localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(state));
+  } catch (err) {
+    // localStorage can fail in private browsing or if quota is exceeded.
+    // Persistence is a nice-to-have, not blocking — log and continue.
+    console.warn('Could not save session:', err);
+  }
+}
+
+function loadSession() {
+  // Returns the saved session if eligible for resume, otherwise null.
+  // Eligibility: must exist, must be under 24 hours old, must not be complete.
+  try {
+    const raw = localStorage.getItem(SESSION_STORAGE_KEY);
+    if (!raw) return null;
+
+    const state = JSON.parse(raw);
+    if (!state.sessionId || !state.savedAt) return null;
+
+    // Check age.
+    const savedAt = new Date(state.savedAt);
+    const ageHours = (Date.now() - savedAt.getTime()) / (1000 * 60 * 60);
+    if (ageHours > SESSION_MAX_AGE_HOURS) {
+      clearSession();
+      return null;
+    }
+
+    // Don't resume completed sessions.
+    if (state.transcriptSent) {
+      clearSession();
+      return null;
+    }
+
+    return state;
+  } catch (err) {
+    console.warn('Could not load session:', err);
+    return null;
+  }
+}
+
+function clearSession() {
+  try {
+    localStorage.removeItem(SESSION_STORAGE_KEY);
+  } catch (err) {
+    console.warn('Could not clear session:', err);
+  }
+}
+
+function resumeSession(state) {
+  // Restore all session state and rebuild the chat UI from saved history.
+  window.sessionId = state.sessionId;
+  window.parentFirstName = state.parentFirstName;
+  window.parentName = state.parentFirstName; // legacy alias
+  window.parentEmail = state.parentEmail;
+  window.blueprintDelivered = state.blueprintDelivered;
+  window.transcriptSent = state.transcriptSent;
+
+  // Restore conversation history.
+  conversationHistory.length = 0;
+  state.conversationHistory.forEach(turn => conversationHistory.push(turn));
+
+  // Set up UI: hide intake, show chat, set heading.
+  document.getElementById('chat-heading').textContent = state.parentFirstName + "'s Interview";
+  document.getElementById('intake-screen').style.display = 'none';
+  document.getElementById('chat-screen').style.display = 'flex';
+
+  // Rebuild the visible chat from history. Skip the synthetic seed message.
+  const messages = document.getElementById('messages');
+  while (messages.firstChild) messages.removeChild(messages.firstChild); // Safe clear.
+  conversationHistory.forEach(turn => {
+    if (turn.role === 'user') {
+      if (turn.content.startsWith('My name is ')) return;
+      let displayText = turn.content;
+      if (displayText.includes('[Internal note for the interviewer:')) {
+        const parts = displayText.split('\n\n');
+        displayText = parts[parts.length - 1];
+      }
+      addMessage(displayText, 'user');
+    } else {
+      renderAssistantMessage(turn.content);
+    }
+  });
+
+  document.getElementById('userInput').focus();
+}
+// ─────────────────────────────────────────────────────────────────────────────
+
 function getMessages() {
   if (window.blueprintDelivered) {
     return conversationHistory.slice(-6);
@@ -841,7 +986,14 @@ function estimateQuestionProgress() {
 
 function isBlueprintTrigger(userText) {
   const lower = userText.toLowerCase().trim();
-  const explicitTriggers = ['wrap it up', 'wrap up', 'wrapup', 'done', "i'm done", 'im done', 'ready', 'finish', 'finished', 'finalize', 'complete', 'go ahead', 'no'];
+  // Explicit triggers are wrap-up signals. Anything that could plausibly
+  // appear as a normal answer to a late-interview question is excluded.
+  // 'no' was previously here and removed in v12.8 because it's the most
+  // common answer to Q22 (the omit-anything check) and was firing false
+  // positive Blueprint generation. The model still produces the Blueprint
+  // correctly when the parent legitimately wraps up — the prompt has its
+  // own wrap-up logic; this function is just for budget-bumping.
+  const explicitTriggers = ['wrap it up', 'wrap up', 'wrapup', "i'm done", 'im done', 'ready', 'finalize', 'go ahead'];
   return explicitTriggers.some(t => lower === t || lower === t + '.' || lower.startsWith(t + ' ') || lower.endsWith(' ' + t));
 }
 
@@ -977,12 +1129,22 @@ async function sendMessage() {
     conversationHistory.push({ role: 'assistant', content: cleanedMessage });
     renderAssistantMessage(cleanedMessage);
 
+    // Save session state after every successful turn so the parent can recover
+    // from a refresh or crash. saveSession() is cheap — milliseconds — so
+    // running it on every turn has negligible cost.
+    saveSession();
+
     // If the interview is complete, fire the webhook to send the transcript to Make.
     // This happens AFTER the message renders so the parent sees the closing message
     // immediately. The webhook fires asynchronously in the background — the parent
     // doesn't wait for it.
     if (interviewComplete) {
       sendTranscriptToMake();
+      // Once the transcript has been sent, the session is complete. We keep
+      // the localStorage entry briefly so a refresh in the next minute still
+      // shows the Blueprint, but it's marked transcriptSent so the next page
+      // load won't offer to resume. clearSession will be called on next load.
+      saveSession(); // re-save to capture transcriptSent: true
     }
 
   } catch (error) {
@@ -999,38 +1161,171 @@ function isBlueprint(text) {
   return text.includes('blueprint-container') || text.includes('blueprint-section-header');
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// SAFE RENDERING
+// ─────────────────────────────────────────────────────────────────────────────
+// Helpers that safely render text and HTML without using innerHTML on
+// untrusted content. User input and model output are both treated as untrusted
+// by default. The Blueprint is the only HTML allowed through, and it goes
+// through a strict allowlist sanitizer first.
+
+function appendTextWithLineBreaks(parent, text) {
+  // Render text into a DOM element, converting \n into <br> elements and
+  // recognizing a tiny allowlist of inline tags (<em>, <strong>) that the
+  // model and our own opening string use for emphasis. Everything else —
+  // any other tags, attributes, scripts — gets escaped as text. This
+  // preserves the italics in the recognition arc without using innerHTML
+  // on untrusted content.
+  //
+  // The implementation: use a regex to match the allowed tags and route
+  // matched content through createElement, while non-matched content goes
+  // through createTextNode. Either way, no markup ever reaches innerHTML.
+
+  const lines = text.split('\n');
+  lines.forEach((line, lineIndex) => {
+    if (lineIndex > 0) {
+      parent.appendChild(document.createElement('br'));
+    }
+
+    // Match <em>...</em> or <strong>...</strong> spans. Anything else is text.
+    const segmentRegex = /<(em|strong)>([\s\S]*?)<\/\1>/gi;
+    let lastIndex = 0;
+    let match;
+
+    while ((match = segmentRegex.exec(line)) !== null) {
+      // Append any text before this match as a plain text node.
+      if (match.index > lastIndex) {
+        parent.appendChild(document.createTextNode(line.substring(lastIndex, match.index)));
+      }
+      // Create the inline element via createElement and put the inner content
+      // in as a text node — never innerHTML, so nested markup is impossible.
+      const tag = match[1].toLowerCase();
+      const innerText = match[2];
+      const el = document.createElement(tag);
+      el.textContent = innerText;
+      parent.appendChild(el);
+      lastIndex = segmentRegex.lastIndex;
+    }
+
+    // Append any trailing text after the last match.
+    if (lastIndex < line.length) {
+      parent.appendChild(document.createTextNode(line.substring(lastIndex)));
+    }
+  });
+}
+
+function sanitizeBlueprintHTML(html) {
+  // Strict allowlist sanitizer for Blueprint output. The Blueprint uses a
+  // known set of tags and attributes — anything outside that set is removed.
+  // This protects against the model being coaxed into emitting unexpected
+  // markup, and against any future Blueprint template changes that might
+  // introduce risk.
+
+  const allowedTags = new Set([
+    'div', 'p', 'h1', 'h2', 'h3', 'h4',
+    'em', 'strong', 'b', 'i', 'br', 'hr',
+    'ul', 'ol', 'li', 'blockquote', 'span'
+  ]);
+  const allowedAttributes = new Set(['class', 'style']);
+  const allowedStyleProperties = new Set([
+    'color', 'background-color', 'font-style', 'font-weight',
+    'text-align', 'margin', 'padding', 'opacity'
+  ]);
+
+  // Parse the HTML in a document fragment so we can walk and filter it.
+  const template = document.createElement('template');
+  template.innerHTML = html;
+
+  function clean(node) {
+    // Walk children in reverse so removals don't shift indexes.
+    const children = Array.from(node.children);
+    children.forEach(child => {
+      const tag = child.tagName.toLowerCase();
+
+      if (!allowedTags.has(tag)) {
+        // Replace disallowed tag with its text content. This neutralizes
+        // <script>, <iframe>, <img onerror=...>, etc., while preserving
+        // any text the model wrote inside them.
+        const text = document.createTextNode(child.textContent);
+        node.replaceChild(text, child);
+        return;
+      }
+
+      // Filter attributes to the allowlist.
+      const attrs = Array.from(child.attributes);
+      attrs.forEach(attr => {
+        if (!allowedAttributes.has(attr.name.toLowerCase())) {
+          child.removeAttribute(attr.name);
+        }
+      });
+
+      // For style attribute, filter individual properties to the allowlist.
+      if (child.hasAttribute('style')) {
+        const style = child.getAttribute('style');
+        const safeStyles = style.split(';')
+          .map(s => s.trim())
+          .filter(s => {
+            const [prop] = s.split(':').map(x => x.trim().toLowerCase());
+            return prop && allowedStyleProperties.has(prop);
+          })
+          .join('; ');
+        if (safeStyles) {
+          child.setAttribute('style', safeStyles);
+        } else {
+          child.removeAttribute('style');
+        }
+      }
+
+      // Recurse into the child.
+      clean(child);
+    });
+  }
+
+  clean(template.content);
+  return template.innerHTML;
+}
+
 function renderAssistantMessage(text) {
   const messages = document.getElementById('messages');
 
   if (isBlueprint(text)) {
     const startIdx = text.indexOf('<div class="blueprint-container">');
     if (startIdx > 0) {
+      // The preamble before the Blueprint is plain text from the model.
+      // Render it safely with textContent + <br> elements.
       const preamble = document.createElement('div');
       preamble.className = 'message agent';
       preamble.style.cssText = 'animation: fadeUp 0.4s ease forwards; opacity: 0;';
-      preamble.innerHTML = text.substring(0, startIdx).replace(/\n/g, '<br>');
+      appendTextWithLineBreaks(preamble, text.substring(0, startIdx));
       messages.appendChild(preamble);
     }
 
+    // The Blueprint itself is HTML by design. Sanitize it through the
+    // allowlist before inserting, so any unexpected tags are stripped.
     const blueprintDiv = document.createElement('div');
     blueprintDiv.style.cssText = 'animation: fadeUp 0.5s ease forwards; opacity: 0;';
     const html = startIdx !== -1 ? text.substring(startIdx) : text;
-    blueprintDiv.innerHTML = html;
+    const sanitizedHTML = sanitizeBlueprintHTML(html);
+    blueprintDiv.innerHTML = sanitizedHTML;
     messages.appendChild(blueprintDiv);
 
-    window.blueprintHTML = html;
+    window.blueprintHTML = sanitizedHTML;
     window.blueprintDelivered = true;
 
+    // Extract plain text for transcript saving via textContent (never innerText
+    // since innerText can trigger reflow and is browser-inconsistent).
     const tempDiv = document.createElement('div');
-    tempDiv.innerHTML = html;
-    const blueprintText = tempDiv.innerText || tempDiv.textContent || '';
+    tempDiv.innerHTML = sanitizedHTML;
+    const blueprintText = tempDiv.textContent || '';
     saveTranscript(blueprintText);
 
   } else {
+    // Regular assistant messages are plain text. Render with textContent
+    // and proper <br> elements — never innerHTML.
     const div = document.createElement('div');
     div.className = 'message agent';
     div.style.cssText = 'animation: fadeUp 0.4s ease forwards; opacity: 0;';
-    div.innerHTML = text.replace(/\n/g, '<br>');
+    appendTextWithLineBreaks(div, text);
     messages.appendChild(div);
   }
 
@@ -1038,11 +1333,14 @@ function renderAssistantMessage(text) {
 }
 
 function addMessage(text, type) {
+  // Renders a user message OR a system status message. Both go through
+  // safe text rendering — the user's typed content can never reach the
+  // DOM as markup, regardless of what they typed.
   const messages = document.getElementById('messages');
   const div = document.createElement('div');
   div.className = 'message ' + type;
   div.style.cssText = 'animation: fadeUp 0.4s ease forwards; opacity: 0;';
-  div.innerHTML = text.replace(/\n/g, '<br>');
+  appendTextWithLineBreaks(div, text);
   messages.appendChild(div);
   scrollToBottom();
   return div;
@@ -1182,6 +1480,11 @@ function startSession() {
   // copies the bracketed text verbatim instead of filling in the actual name.
   window.parentFirstName = name;
 
+  // Generate a fresh session ID and save initial state so the parent can recover
+  // if they refresh, lose connection, or accidentally close the tab.
+  window.sessionId = generateSessionId();
+  saveSession();
+
   renderAssistantMessage(opening);
   // Override the scrollToBottom that just fired in renderAssistantMessage().
   // On the very first render, we want the parent to see the TOP of the opening
@@ -1208,5 +1511,28 @@ document.getElementById('userInput').addEventListener('input', function() {
 });
 
 window.onload = function() {
+  // Check for a resumable session from a previous visit. If one exists
+  // (within 24 hours, not yet completed), offer the parent the choice
+  // to resume where they left off or start fresh. Most parents won't
+  // see this prompt — it only fires after a refresh, crash, or tab close
+  // mid-interview.
+  const savedSession = loadSession();
+  if (savedSession && savedSession.conversationHistory && savedSession.conversationHistory.length > 2) {
+    // Only offer resume if there's meaningful progress (more than the
+    // initial seed turns). Build a friendly prompt that doesn't reveal
+    // technical details to the parent.
+    const hoursAgo = Math.round((Date.now() - new Date(savedSession.savedAt).getTime()) / (1000 * 60 * 60));
+    const timeAgo = hoursAgo < 1 ? 'a few minutes ago' : (hoursAgo === 1 ? 'about an hour ago' : 'about ' + hoursAgo + ' hours ago');
+    const message = 'It looks like you started this interview ' + timeAgo + ' as ' + savedSession.parentFirstName + '.\n\nWould you like to pick up where you left off?\n\nClick OK to resume, or Cancel to start over.';
+
+    if (window.confirm(message)) {
+      resumeSession(savedSession);
+      return;
+    } else {
+      // Parent chose to start fresh. Clear the saved session.
+      clearSession();
+    }
+  }
+
   document.getElementById('inputName').focus();
 };
