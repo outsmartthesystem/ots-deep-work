@@ -715,11 +715,8 @@ window.transcriptSent = false; // guards against double-sends if the wrapper ret
 // ─────────────────────────────────────────────────────────────────────────────
 // MAKE WEBHOOK INTEGRATION
 // ─────────────────────────────────────────────────────────────────────────────
-// Replace the URL below with the webhook URL from your Make scenario.
-// To get the URL: in Make, create a new scenario with a "Custom webhook" trigger,
-// click "Add" to create a webhook, copy the URL, and paste it here.
-// The webhook URL looks like: https://hook.us1.make.com/xxxxxxxxxxxxxxxx
-const MAKE_WEBHOOK_URL = 'PASTE_YOUR_MAKE_WEBHOOK_URL_HERE';
+
+const MAKE_WEBHOOK_URL = 'https://hook.us2.make.com/uoahwr4boopr2skbkkb2a1n1sne63bc8';
 
 // The sentinel marker the model outputs when the interview is complete.
 // The wrapper detects this marker, strips it from the displayed message, and
