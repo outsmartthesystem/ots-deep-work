@@ -460,6 +460,16 @@ When the parent says "wrap it up" or clearly signals they are done, produce the 
 
 BLUEPRINT TIER ASSESSMENT — DO THIS BEFORE WRITING THE BLUEPRINT
 
+CRITICAL: The tier assessment is INTERNAL REASONING. It does NOT appear in your output.
+
+Do not write phrases like "Running Blueprint tier assessment before writing..." or "Engagement signals observed:" or "Score: +5 — Tier 1" in the message you send to the parent. Do not show your work. Do not list the engagement signals. Do not state the score or tier name.
+
+The parent's screen, after the wrap-up trigger fires, should show ONLY the Blueprint itself — starting with "Family Money Story Blueprint" and the parent's name. They should never see the tier scaffolding that produced it.
+
+The tier reasoning happens silently in your head. The Blueprint is what reaches the parent.
+
+(The tier name DOES appear later, only in the FEEDBACK FOR JAY block at the very end of the entire interview, in the "Internal note for Jay" section. That is where Jay sees it. Until that block is generated, the tier is invisible to everyone except you.)
+
 Before you write a single word of the Blueprint, assess the interview honestly. Count engagement signals.
 
 HIGH-ENGAGEMENT signals (each one is +1):
@@ -676,7 +686,12 @@ F6. Was there a moment that felt off, generic, robotic, or made you want to clos
 
 CRITICAL — SCORE TRACKING DISCIPLINE.
 
-When the parent answers each numeric feedback question, you MUST capture the exact number internally before moving to the next question. Do not rely on memory at the end of the feedback flow to reconstruct the scores from the conversation. Each score the parent gives is final data — write it down internally as soon as they answer.
+This is the single most-failed part of the interview. Read carefully.
+
+When the parent answers each numeric feedback question (F1, F2, F3, F4), you MUST do two things in your immediate response:
+
+1. Capture the exact number in your working memory before moving on.
+2. When you ask the next feedback question, your response can be as simple as moving forward with the next question — but the score must be locked in your memory.
 
 The tracking format you maintain internally as you go:
 F1 score: [number]
@@ -686,9 +701,20 @@ F4 score: [number] (or free-text answer for Tier 3)
 F5 answer: [verbatim]
 F6 answer: [verbatim]
 
-When you reach the final FEEDBACK FOR JAY output block, transcribe these tracked values directly into the table. Do not leave any cell empty. Do not use em-dashes (—) or placeholders for scores the parent actually gave. If the parent gave a number, that number must appear in the corresponding table cell.
+When you reach the final FEEDBACK FOR JAY output block, transcribe these tracked values directly into the table. EVERY CELL MUST CONTAIN THE EXACT NUMBER THE PARENT GAVE.
 
-If the parent skipped a question or gave a non-numeric answer to a numeric question, transcribe their actual answer as written, not a placeholder. "skipped" is acceptable; "—" is not.
+FORBIDDEN OUTPUTS — these are all violations:
+— Em-dash (—) in a score cell
+— "Not captured" or "Unable to determine" in a score cell
+— "TBD" or "[score]" or any placeholder
+— Empty cells
+— Any text other than the actual number the parent typed
+
+If you somehow lost track of a score, scroll back through the conversation and find it. The parent's answer to F1 is in their first numeric response after they typed "ready." F2 is the second. F3 is the third. F4 is the fourth. The values are right there in the conversation history. Find them. Do not write a placeholder.
+
+If the parent genuinely skipped a question (typed "skip" or similar), write "skipped" — this is not a placeholder, it is the actual answer. But "Not captured" is never the actual answer — it is the system failing.
+
+The same discipline applies to the Internal note for Jay. The Blueprint Tier was determined before the Blueprint was written (in your silent tier assessment). That tier is the correct value to write. "Unable to determine" is not acceptable — you DID determine it.
 
 After F6, output one final block titled exactly: FEEDBACK FOR JAY — [PARENT FIRST NAME] — [TODAY'S DATE]
 
@@ -715,8 +741,11 @@ window.transcriptSent = false; // guards against double-sends if the wrapper ret
 // ─────────────────────────────────────────────────────────────────────────────
 // MAKE WEBHOOK INTEGRATION
 // ─────────────────────────────────────────────────────────────────────────────
-
-const MAKE_WEBHOOK_URL = 'https://hook.us2.make.com/uoahwr4boopr2skbkkb2a1n1sne63bc8';
+// Replace the URL below with the webhook URL from your Make scenario.
+// To get the URL: in Make, create a new scenario with a "Custom webhook" trigger,
+// click "Add" to create a webhook, copy the URL, and paste it here.
+// The webhook URL looks like: https://hook.us1.make.com/xxxxxxxxxxxxxxxx
+const MAKE_WEBHOOK_URL = 'PASTE_YOUR_MAKE_WEBHOOK_URL_HERE';
 
 // The sentinel marker the model outputs when the interview is complete.
 // The wrapper detects this marker, strips it from the displayed message, and
@@ -799,11 +828,26 @@ function buildTranscriptPayload() {
 }
 
 async function sendTranscriptToMake() {
-  // Guard against double-sends. If the user closes the page and the wrapper
-  // somehow re-detects completion, we don't want Jay to get two emails.
+  // Guard against double-sends. Check BOTH the in-memory flag and the
+  // localStorage persisted state — if either says we already sent, skip.
+  // This is defensive against race conditions where a turn fires twice
+  // before the in-memory flag has been set, or where a refresh wiped
+  // the in-memory flag but localStorage still says it was sent.
   if (window.transcriptSent) {
-    console.log('Transcript already sent — skipping duplicate send.');
+    console.log('Transcript already sent (in-memory) — skipping duplicate send.');
     return;
+  }
+  try {
+    const persisted = JSON.parse(localStorage.getItem(SESSION_STORAGE_KEY) || '{}');
+    if (persisted.transcriptSent) {
+      console.log('Transcript already sent (persisted) — skipping duplicate send.');
+      window.transcriptSent = true; // sync the in-memory flag
+      return;
+    }
+  } catch (err) {
+    // localStorage read failed — proceed with send. Better one extra email
+    // than no email at all if storage is broken.
+    console.warn('Could not check persisted transcriptSent flag:', err);
   }
 
   if (MAKE_WEBHOOK_URL === 'PASTE_YOUR_MAKE_WEBHOOK_URL_HERE') {
@@ -812,7 +856,10 @@ async function sendTranscriptToMake() {
     return;
   }
 
+  // Set the flag and persist BEFORE the network request, so any concurrent
+  // retry that fires while we're awaiting the fetch will see the flag set.
   window.transcriptSent = true;
+  saveSession();
 
   const payload = buildTranscriptPayload();
 
@@ -1221,9 +1268,10 @@ function sanitizeBlueprintHTML(html) {
   const allowedTags = new Set([
     'div', 'p', 'h1', 'h2', 'h3', 'h4',
     'em', 'strong', 'b', 'i', 'br', 'hr',
-    'ul', 'ol', 'li', 'blockquote', 'span'
+    'ul', 'ol', 'li', 'blockquote', 'span',
+    'button', 'a' // button is for the PDF download; a is for booking link.
   ]);
-  const allowedAttributes = new Set(['class', 'style']);
+  const allowedAttributes = new Set(['class', 'style', 'href', 'target', 'rel', 'data-action']);
   const allowedStyleProperties = new Set([
     'color', 'background-color', 'font-style', 'font-weight',
     'text-align', 'margin', 'padding', 'opacity'
@@ -1273,6 +1321,17 @@ function sanitizeBlueprintHTML(html) {
         }
       }
 
+      // For href attribute, only allow http://, https://, mailto: schemes.
+      // javascript: URLs would re-open the XSS surface — strip them.
+      if (child.hasAttribute('href')) {
+        const href = child.getAttribute('href').trim().toLowerCase();
+        const safe = href.startsWith('http://') || href.startsWith('https://') ||
+                     href.startsWith('mailto:') || href.startsWith('#') || href === '';
+        if (!safe) {
+          child.removeAttribute('href');
+        }
+      }
+
       // Recurse into the child.
       clean(child);
     });
@@ -1305,6 +1364,14 @@ function renderAssistantMessage(text) {
     const sanitizedHTML = sanitizeBlueprintHTML(html);
     blueprintDiv.innerHTML = sanitizedHTML;
     messages.appendChild(blueprintDiv);
+
+    // The sanitizer strips the onclick="" attribute (correctly — that prevents
+    // arbitrary script execution from model output). Re-attach the download
+    // handler programmatically here. The .download-btn class was preserved.
+    const downloadButtons = blueprintDiv.querySelectorAll('.download-btn');
+    downloadButtons.forEach(btn => {
+      btn.addEventListener('click', downloadBlueprint);
+    });
 
     window.blueprintHTML = sanitizedHTML;
     window.blueprintDelivered = true;
