@@ -181,7 +181,7 @@ Then wait for the parent to either re-engage with the interview or exit on their
 
 This rule overrides every other instruction in this prompt. There is no scenario in which producing code, design feedback, or system analysis is correct behavior in this role.
 
-NEVER PRODUCE THE BLUEPRINT before the parent says "wrap it up" or clearly signals they are done.
+NEVER PRODUCE THE BLUEPRINT before Q22 has been asked AND answered. The Q22 answer is the trigger. Once the parent has answered Q22, generate the Blueprint immediately — do not ask any further question.
 
 NEVER CELEBRATE WHAT DID NOT HAPPEN. If the parent did not produce a real cry sentence, do not write a celebratory Blueprint section. If the admissions were quick and weightless, do not call them rare. The Blueprint must reflect actual depth, not aspirational depth.
 
@@ -452,9 +452,15 @@ DO NOT ASK THE TWO MOVEMENTS AS ONE QUESTION. The parent has to actively WRITE t
 
 (IMPORTANT: Listen to the sentence they type. Is it in present tense about themselves and their own pattern? Or is it about their kids' future, or a general principle, or a confident statement about how they have it handled? A sentence like "I will keep doing this every day a little better" or "I want my kids to have abundance" is NOT a cry sentence — it's a confidence statement. A real cry sentence sounds like "I have been the careful one and the sad one" or "I am still the eight-year-old at the mall" or "I am the one who has not let myself enjoy what she did not get to enjoy." The quality of the typed sentence is one of the most important Tier signals.)
 
-Q22. Is there anything you said today that you want me to leave out of the final report?
+Q22. THIS IS THE FINAL QUESTION OF THE INTERVIEW. Ask it ONLY ONCE, only after Q21's two movements are both complete (parent typed their sentence AND typed "said it"). DO NOT ask Q22 earlier in the interview. DO NOT ask it twice. If you find yourself uncertain whether Q21 has finished, the rule is: Q21 is finished only after the parent has typed "said it." Until then, Q22 has not been reached.
 
-When the parent says "wrap it up" or clearly signals they are done, produce the Blueprint at the appropriate tier.
+The Q22 question is exactly: "Is there anything you said today that you want me to leave out of the final report?"
+
+When the parent answers Q22 (whether their answer is "no", "nothing", lists items to omit, or anything else), Q22 is complete. Do NOT ask any follow-up question. Do NOT ask the parent to say "wrap it up." Do NOT add a separate handoff step.
+
+Immediately after the parent's Q22 answer, you produce the Blueprint at the appropriate tier. The Q22 answer IS the wrap-up trigger. There is no other trigger. The parent does not need to do anything else to receive their Blueprint.
+
+(If the parent listed items to omit at Q22, honor those omissions silently — the Blueprint simply does not reference whatever they asked you to leave out. Do not acknowledge the omission in the Blueprint itself.)
 
 ---
 
@@ -684,47 +690,44 @@ F4. Tier-specific:
 F5. Was there a single moment, question, or sentence that genuinely landed?
 F6. Was there a moment that felt off, generic, robotic, or made you want to close the page?
 
-CRITICAL — SCORE TRACKING DISCIPLINE.
+SCORE AND VALUE CAPTURE — HANDLED BY THE WRAPPER.
 
-This is the single most-failed part of the interview. Read carefully.
+The wrapper captures the parent's F1-F6 answers, the pattern they picked at Q12, and the Blueprint tier you determined. You do NOT need to track these values in your memory. They are available to you as substituted values in this prompt:
 
-When the parent answers each numeric feedback question (F1, F2, F3, F4), you MUST do two things in your immediate response:
+- F1 score: [F1_SCORE]
+- F2 score: [F2_SCORE]
+- F3 score: [F3_SCORE]
+- F4 score (or Tier 3 free-text): [F4_SCORE]
+- F5 answer: [F5_ANSWER]
+- F6 answer: [F6_ANSWER]
+- Pattern picked at Q12: [PATTERN_PICKED]
+- Blueprint tier: [TIER_DETERMINED]
 
-1. Capture the exact number in your working memory before moving on.
-2. When you ask the next feedback question, your response can be as simple as moving forward with the next question — but the score must be locked in your memory.
+These placeholders are substituted with real values by the wrapper at every API call. Early in the interview, most will show "[not yet captured]" — that is expected and means the parent has not yet answered that question. By the time you generate the FEEDBACK FOR JAY block, all values are populated.
 
-The tracking format you maintain internally as you go:
-F1 score: [number]
-F2 score: [number]
-F3 score: [number]
-F4 score: [number] (or free-text answer for Tier 3)
-F5 answer: [verbatim]
-F6 answer: [verbatim]
+WHEN YOU GENERATE THE FEEDBACK FOR JAY BLOCK, USE THESE EXACT VALUES.
 
-When you reach the final FEEDBACK FOR JAY output block, transcribe these tracked values directly into the table. EVERY CELL MUST CONTAIN THE EXACT NUMBER THE PARENT GAVE.
+Do not invent. Do not retrieve from memory. Do not write "Not captured" or "Unable to determine." If a placeholder somehow shows "[not yet captured]" at the moment you generate the FEEDBACK FOR JAY block, write that text literally — it is the wrapper telling you the value was not received. Do not substitute your own guess.
 
-FORBIDDEN OUTPUTS — these are all violations:
-— Em-dash (—) in a score cell
-— "Not captured" or "Unable to determine" in a score cell
-— "TBD" or "[score]" or any placeholder
-— Empty cells
-— Any text other than the actual number the parent typed
+For the pattern name in the Internal note, quote [PATTERN_PICKED] verbatim — that is what the parent actually said. Do not paraphrase. Do not name a different pattern than the one they picked.
 
-If you somehow lost track of a score, scroll back through the conversation and find it. The parent's answer to F1 is in their first numeric response after they typed "ready." F2 is the second. F3 is the third. F4 is the fourth. The values are right there in the conversation history. Find them. Do not write a placeholder.
+For the tier, write [TIER_DETERMINED] as the number 1, 2, or 3 — that is what your silent tier assessment determined.
 
-If the parent genuinely skipped a question (typed "skip" or similar), write "skipped" — this is not a placeholder, it is the actual answer. But "Not captured" is never the actual answer — it is the system failing.
+TIER SENTINEL — REQUIRED AT THE START OF EVERY BLUEPRINT.
 
-The same discipline applies to the Internal note for Jay. The Blueprint Tier was determined before the Blueprint was written (in your silent tier assessment). That tier is the correct value to write. "Unable to determine" is not acceptable — you DID determine it.
+When you produce the Blueprint (after the parent answers Q22), the very first line of your response must be exactly: [BLUEPRINT_TIER:N] where N is 1, 2, or 3.
+
+The wrapper strips this sentinel before the parent sees it. Do not omit it. Do not put it later in the message. The first 19 characters of your Blueprint response must be the sentinel.
 
 After F6, output one final block titled exactly: FEEDBACK FOR JAY — [PARENT FIRST NAME] — [TODAY'S DATE]
 
 (The wrapper substitutes the actual parent's first name and today's date into the title automatically. Output the title with the bracketed placeholders exactly as written above — do not invent names or dates.)
 
 Containing:
-— The quantitative scores in a clean plain-text table. For Tier 1 and Tier 2, all four scores. For Tier 3, the first three scores plus the F4 free-text answer rendered as a separate block titled "What they would tell a friend." Every score the parent gave must appear in the table.
-— F5 and F6 answers verbatim
+— The quantitative scores in a clean plain-text table, using the substituted values [F1_SCORE], [F2_SCORE], [F3_SCORE], [F4_SCORE]. For Tier 3 with free-text F4, render F4 as a separate block titled "What they would tell a friend" with [F4_SCORE] as the content.
+— F5 and F6 answers verbatim using [F5_ANSWER] and [F6_ANSWER].
 — A summary line: This parent would [book the call / come back to this / move on] — yes / no / maybe.
-— Internal note (visible to Jay): "Blueprint Tier: [1 / 2 / 3]. Engagement signals observed: [brief list]."
+— Internal note (visible to Jay): "Blueprint Tier: [TIER_DETERMINED]. Pattern picked: [PATTERN_PICKED]. Engagement signals observed: [brief list of what landed in the interview, based on what actually happened]."
 
 Tell the parent EXACTLY THIS as the final message of the entire interview (do not paraphrase, do not add to it, do not modify it):
 
@@ -739,13 +742,151 @@ window.blueprintDelivered = false;
 window.transcriptSent = false; // guards against double-sends if the wrapper retries
 
 // ─────────────────────────────────────────────────────────────────────────────
+// FEEDBACK & PATTERN CAPTURE (wrapper-level state tracking)
+// ─────────────────────────────────────────────────────────────────────────────
+// The model previously had to remember F1-F4 numeric answers across many turns
+// and assemble them into the FEEDBACK FOR JAY block at the very end. That
+// approach failed repeatedly across v12.4, v12.8, and v12.9 — scores got
+// dropped or hallucinated, the pattern name got invented as a different one
+// than what the parent actually picked, and the tier got marked "Unable to
+// determine" even when it was determined silently.
+//
+// This module solves the problem at the wrapper level: the wrapper itself
+// captures the feedback scores and pattern name as the conversation happens,
+// then injects those captured values directly into the system prompt at API
+// call time. The model no longer has to retrieve from memory — the values
+// appear in its instructions.
+//
+// Detection works by inspecting assistant messages for distinctive question
+// phrases. When the wrapper sees F1's question text emitted by the assistant,
+// it sets activeFeedbackQuestion = 'F1'. The parent's next message gets
+// captured as F1's answer. Same logic for F2-F6 and the pattern pick at Q12.
+//
+// The tier is captured via a sentinel the model emits at the very start of
+// the Blueprint: [BLUEPRINT_TIER:1] (or 2 or 3). The wrapper strips the
+// sentinel before display and stores the tier number for later substitution.
+
+window.capturedFeedback = {
+  F1: null, F2: null, F3: null, F4: null, F5: null, F6: null,
+};
+window.capturedPattern = null; // The pattern the parent picked at Q12, verbatim.
+window.capturedTier = null;    // 1, 2, or 3 — the tier the model determined.
+window.activeFeedbackQuestion = null; // 'F1', 'F2', etc. — set by detector, cleared on capture.
+window.activePatternQuestion = false; // true when the wrapper is waiting for the Q12 answer.
+
+const TIER_SENTINEL_REGEX = /\[BLUEPRINT_TIER:(\d)\]/;
+
+function detectAndUpdateActiveQuestion(assistantMessage) {
+  // Inspect the assistant's most recent message to see which feedback question
+  // (if any) is currently being asked. Sets window.activeFeedbackQuestion so
+  // the next user message can be captured as that question's answer.
+  //
+  // Distinctive phrases were chosen carefully — they must appear ONLY in the
+  // intended question and nowhere else in the prompt. If a phrase ever started
+  // appearing in normal interview flow, this detector would misfire.
+  const msg = assistantMessage.toLowerCase();
+
+  // F-question detection. Order matters slightly — F4 has multiple variants
+  // depending on tier, so check it broadly.
+  if (msg.includes('in the first 2 minutes') && msg.includes('how safe')) {
+    window.activeFeedbackQuestion = 'F1';
+  } else if (msg.includes('how clear did you feel about what to do next')) {
+    window.activeFeedbackQuestion = 'F2';
+  } else if (msg.includes('how custom did the blueprint feel')) {
+    window.activeFeedbackQuestion = 'F3';
+  } else if (msg.includes('likely are you to book the call') ||
+             msg.includes('come back to this blueprint in the next 90 days') ||
+             (msg.includes('if a friend asked you about this experience') && msg.includes('would you tell them'))) {
+    window.activeFeedbackQuestion = 'F4';
+  } else if (msg.includes('single moment') && msg.includes('genuinely landed')) {
+    window.activeFeedbackQuestion = 'F5';
+  } else if (msg.includes('felt off') && (msg.includes('generic') || msg.includes('robotic'))) {
+    window.activeFeedbackQuestion = 'F6';
+  }
+
+  // Q12 pattern-pick detection. The model emits all five patterns and ends
+  // with "Which of these patterns feels closest to you — and why?" The next
+  // user response is the pattern pick.
+  if (msg.includes('which of these patterns feels closest') ||
+      msg.includes('which of these feels closest to you')) {
+    window.activePatternQuestion = true;
+  }
+}
+
+function captureUserAnswer(userText) {
+  // Called when the parent sends a message. If the wrapper is currently
+  // waiting for a feedback answer or a pattern pick, store it.
+  if (window.activeFeedbackQuestion) {
+    const q = window.activeFeedbackQuestion;
+    // F1-F4 should be numeric. Try to extract a number; fall back to verbatim.
+    if (q === 'F1' || q === 'F2' || q === 'F3' || q === 'F4') {
+      // Tier 3's F4 is free-text, not numeric — store verbatim.
+      // For everything else, try to parse a 1-10 number.
+      const match = userText.match(/\b(10|[1-9])\b/);
+      if (match && q !== 'F4') {
+        window.capturedFeedback[q] = match[1];
+      } else if (match && q === 'F4') {
+        // Numeric F4 (Tier 1 or 2) — store the number.
+        window.capturedFeedback[q] = match[1];
+      } else {
+        // No number found — store verbatim (likely Tier 3 free-text or skipped).
+        window.capturedFeedback[q] = userText.trim();
+      }
+    } else {
+      // F5, F6 — verbatim text.
+      window.capturedFeedback[q] = userText.trim();
+    }
+    window.activeFeedbackQuestion = null;
+  }
+
+  if (window.activePatternQuestion) {
+    // Capture the pattern pick verbatim. This is what gets quoted back in the
+    // FEEDBACK FOR JAY internal note so the model can't hallucinate a
+    // different pattern.
+    window.capturedPattern = userText.trim();
+    window.activePatternQuestion = false;
+  }
+}
+
+function captureTierFromAssistantMessage(assistantMessage) {
+  // The model emits a sentinel like [BLUEPRINT_TIER:1] at the very start of
+  // the Blueprint. Capture the tier number and strip the sentinel so the
+  // parent doesn't see it.
+  const match = assistantMessage.match(TIER_SENTINEL_REGEX);
+  if (match) {
+    window.capturedTier = match[1];
+    return assistantMessage.replace(TIER_SENTINEL_REGEX, '').trim();
+  }
+  return assistantMessage;
+}
+
+function buildFeedbackSubstitutions() {
+  // Returns a string to inject into the system prompt that contains the
+  // captured values. The prompt's FEEDBACK FOR JAY instructions reference
+  // these placeholders, so substitution at API call time gives the model
+  // real values to work with instead of asking it to retrieve from memory.
+  const f = window.capturedFeedback;
+  return {
+    '[F1_SCORE]': f.F1 || '[not yet captured]',
+    '[F2_SCORE]': f.F2 || '[not yet captured]',
+    '[F3_SCORE]': f.F3 || '[not yet captured]',
+    '[F4_SCORE]': f.F4 || '[not yet captured]',
+    '[F5_ANSWER]': f.F5 || '[not yet captured]',
+    '[F6_ANSWER]': f.F6 || '[not yet captured]',
+    '[PATTERN_PICKED]': window.capturedPattern || '[not yet captured]',
+    '[TIER_DETERMINED]': window.capturedTier || '[not yet captured]',
+  };
+}
+// ─────────────────────────────────────────────────────────────────────────────
+
+// ─────────────────────────────────────────────────────────────────────────────
 // MAKE WEBHOOK INTEGRATION
 // ─────────────────────────────────────────────────────────────────────────────
 // Replace the URL below with the webhook URL from your Make scenario.
 // To get the URL: in Make, create a new scenario with a "Custom webhook" trigger,
 // click "Add" to create a webhook, copy the URL, and paste it here.
 // The webhook URL looks like: https://hook.us1.make.com/xxxxxxxxxxxxxxxx
-const MAKE_WEBHOOK_URL = 'PASTE_YOUR_MAKE_WEBHOOK_URL_HERE';
+const MAKE_WEBHOOK_URL = 'https://hook.us2.make.com/uoahwr4boopr2skbkkb2a1n1sne63bc8';
 
 // The sentinel marker the model outputs when the interview is complete.
 // The wrapper detects this marker, strips it from the displayed message, and
@@ -824,6 +965,16 @@ function buildTranscriptPayload() {
     blueprintSnippet: blueprintSnippet,
     fullTranscript: readableTranscript,
     finalMessage: finalMessage,
+    // Wrapper-captured values. These are reliable — they came directly from
+    // the parent's typed answers, not from the model's memory.
+    blueprintTier: window.capturedTier || '',
+    patternPicked: window.capturedPattern || '',
+    f1Score: (window.capturedFeedback && window.capturedFeedback.F1) || '',
+    f2Score: (window.capturedFeedback && window.capturedFeedback.F2) || '',
+    f3Score: (window.capturedFeedback && window.capturedFeedback.F3) || '',
+    f4Score: (window.capturedFeedback && window.capturedFeedback.F4) || '',
+    f5Answer: (window.capturedFeedback && window.capturedFeedback.F5) || '',
+    f6Answer: (window.capturedFeedback && window.capturedFeedback.F6) || '',
   };
 }
 
@@ -923,6 +1074,13 @@ function saveSession() {
     conversationHistory: conversationHistory,
     blueprintDelivered: window.blueprintDelivered || false,
     transcriptSent: window.transcriptSent || false,
+    capturedFeedback: window.capturedFeedback || {
+      F1: null, F2: null, F3: null, F4: null, F5: null, F6: null,
+    },
+    capturedPattern: window.capturedPattern || null,
+    capturedTier: window.capturedTier || null,
+    activeFeedbackQuestion: window.activeFeedbackQuestion || null,
+    activePatternQuestion: window.activePatternQuestion || false,
     savedAt: new Date().toISOString(),
   };
 
@@ -982,6 +1140,16 @@ function resumeSession(state) {
   window.parentEmail = state.parentEmail;
   window.blueprintDelivered = state.blueprintDelivered;
   window.transcriptSent = state.transcriptSent;
+
+  // Restore captured feedback values, pattern pick, tier, and active-question
+  // state. Without these the wrapper would lose all captured values on resume.
+  window.capturedFeedback = state.capturedFeedback || {
+    F1: null, F2: null, F3: null, F4: null, F5: null, F6: null,
+  };
+  window.capturedPattern = state.capturedPattern || null;
+  window.capturedTier = state.capturedTier || null;
+  window.activeFeedbackQuestion = state.activeFeedbackQuestion || null;
+  window.activePatternQuestion = state.activePatternQuestion || false;
 
   // Restore conversation history.
   conversationHistory.length = 0;
@@ -1078,6 +1246,12 @@ async function sendMessage() {
     messageForApi = `[Internal note for the interviewer: You are roughly on Q${currentQ} of 22. After acknowledging this answer in 1-3 short sentences, move to Q${nextQ}. Do not extend with additional follow-ups. Do not return to earlier topics. Vary your response shape between A (reflect+ask), B (hold+ask), and C (acknowledge+ask) — do not use the same shape twice in a row. Track engagement signals as you go: first-person ownership, specific memories, real body responses, weight in admissions. These determine the Blueprint tier at the end.]\n\n${userText}`;
   }
 
+  // Capture F1-F6 score answers and Q12 pattern pick at the wrapper level.
+  // detectAndUpdateActiveQuestion() ran on the previous assistant message and
+  // set window.activeFeedbackQuestion (or activePatternQuestion). This call
+  // stores the parent's typed answer into capturedFeedback or capturedPattern.
+  captureUserAnswer(userText);
+
   conversationHistory.push({ role: 'user', content: messageForApi });
 
   // Token budget. Blueprint generation needs lots of room. Conversational turns are tight.
@@ -1099,13 +1273,18 @@ async function sendMessage() {
       attempts++;
 
       // Compute the current date and substitute it into the system prompt before sending.
-      // The system prompt has a literal "[Today's date]" placeholder. Without this substitution,
-      // the model fills in the date from training-data priors, which produces wrong dates
-      // like "January 2025" or "May 2025" regardless of when the interview actually happened.
+      // The system prompt has TWO date placeholder formats — handle both.
+      // [Today's date] is used in the Blueprint output template.
+      // [TODAY'S DATE] is used in the FEEDBACK FOR JAY block instruction.
+      // Both must be replaced or the model either hallucinates a date from training-data
+      // priors (producing "January 2025") or copies the bracketed placeholder verbatim
+      // into the parent-visible output.
       const today = new Date().toLocaleDateString('en-US', {
         year: 'numeric', month: 'long', day: 'numeric'
       });
-      let systemPromptWithSubstitutions = SYSTEM_PROMPT.replace(/\[Today's date\]/g, today);
+      let systemPromptWithSubstitutions = SYSTEM_PROMPT
+        .replace(/\[Today's date\]/g, today)
+        .replace(/\[TODAY'S DATE\]/g, today);
 
       // Substitute the parent's first name into the FEEDBACK FOR JAY block. The system prompt
       // has a literal "[PARENT FIRST NAME]" placeholder; without this substitution the model
@@ -1116,6 +1295,19 @@ async function sendMessage() {
           /\[PARENT FIRST NAME\]/g, window.parentFirstName
         );
       }
+
+      // Substitute the wrapper-captured values for feedback scores, pattern pick,
+      // and tier. The prompt's FEEDBACK FOR JAY block instructions reference
+      // these placeholders. Live substitution at every API call means the model
+      // sees current state — early in the interview most placeholders show as
+      // "[not yet captured]"; by the FEEDBACK FOR JAY moment, all are populated.
+      const captures = buildFeedbackSubstitutions();
+      Object.keys(captures).forEach(placeholder => {
+        const escaped = placeholder.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        systemPromptWithSubstitutions = systemPromptWithSubstitutions.replace(
+          new RegExp(escaped, 'g'), captures[placeholder]
+        );
+      });
 
       const response = await fetch('/api/chat', {
         method: 'POST',
@@ -1155,8 +1347,14 @@ async function sendMessage() {
       throw new Error(JSON.stringify(data));
     }
 
-    const assistantMessage = data.content[0].text;
+    const rawAssistantMessage = data.content[0].text;
     thinking.remove();
+
+    // Capture the tier from the [BLUEPRINT_TIER:N] sentinel if present, and
+    // strip the sentinel from the message before storing or rendering it.
+    // This must happen before any other processing so the parent never sees
+    // the sentinel and the wrapper has the tier locked in.
+    const assistantMessage = captureTierFromAssistantMessage(rawAssistantMessage);
 
     // Check whether this message signals interview completion. If yes, we'll
     // strip the sentinel from what the parent sees and trigger the webhook
@@ -1172,6 +1370,12 @@ async function sendMessage() {
     conversationHistory[conversationHistory.length - 1] = { role: 'user', content: userText };
     conversationHistory.push({ role: 'assistant', content: cleanedMessage });
     renderAssistantMessage(cleanedMessage);
+
+    // After the assistant message renders, detect whether it's asking F1-F6
+    // or Q12 (pattern pick). This sets window.activeFeedbackQuestion or
+    // window.activePatternQuestion so the next user message gets captured
+    // correctly. Detection runs on the cleaned message text.
+    detectAndUpdateActiveQuestion(cleanedMessage);
 
     // Save session state after every successful turn so the parent can recover
     // from a refresh or crash. saveSession() is cheap — milliseconds — so
