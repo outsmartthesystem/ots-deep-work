@@ -957,16 +957,18 @@ const MAKE_WEBHOOK_URL = 'https://hook.us2.make.com/uoahwr4boopr2skbkkb2a1n1sne6
 const COMPLETION_SENTINEL = '[INTERVIEW_COMPLETE]';
 
 function isInterviewComplete(assistantMessage) {
-  // Primary detector: the explicit sentinel marker from the prompt.
-  if (assistantMessage.includes(COMPLETION_SENTINEL)) {
-    return true;
-  }
-  // Fallback detector: the closing sentence the prompt instructs the model to
-  // deliver. Used if the model paraphrases or skips the sentinel for any reason.
-  if (assistantMessage.includes('Your Blueprint and your feedback are being sent to Jay')) {
-    return true;
-  }
-  return false;
+  // Detection is sentinel-only as of v12.12. The previous fallback that matched
+  // the closing-sentence string proved unreliable — the model sometimes echoed
+  // the closing sentence prematurely (in drafts, in mid-interview wrap-up
+  // attempts, or when it confused itself), which fired the webhook with empty
+  // state and sent Jay blank emails.
+  //
+  // Sentinel-only means: if the model fails to emit [INTERVIEW_COMPLETE] at
+  // the very end, no email fires. That's a visible failure (Jay notices the
+  // missing email and we debug) rather than a silent failure (Jay gets blank
+  // data and assumes something else broke). Visible failures are recoverable;
+  // silent corruption is not.
+  return assistantMessage.includes(COMPLETION_SENTINEL);
 }
 
 function stripSentinel(message) {
@@ -1067,6 +1069,25 @@ async function sendTranscriptToMake() {
   if (MAKE_WEBHOOK_URL === 'PASTE_YOUR_MAKE_WEBHOOK_URL_HERE') {
     console.error('Make webhook URL not configured. Skipping transcript send.');
     console.error('See chat.js MAKE_WEBHOOK_URL constant for setup instructions.');
+    return;
+  }
+
+  // Sanity check before firing — defense against blank-email events.
+  // A real completed interview produces 20+ assistant turns and has a parent
+  // name and email captured. If the payload is missing those, something went
+  // wrong (premature sentinel, state loss, refresh corruption) and sending
+  // a blank email would corrupt Jay's data. Block the send and log loudly.
+  const assistantTurnCount = conversationHistory.filter(t => t.role === 'assistant').length;
+  const hasParentName = window.parentFirstName && window.parentFirstName.trim() !== '';
+  const MIN_TURNS_FOR_REAL_INTERVIEW = 15; // a real interview has 22+ turns; 15 is a generous floor
+
+  if (!hasParentName) {
+    console.error('Webhook fire BLOCKED: parent name is empty. This indicates state loss or premature trigger.');
+    console.error('Conversation length:', assistantTurnCount, 'turns. parentFirstName:', window.parentFirstName);
+    return;
+  }
+  if (assistantTurnCount < MIN_TURNS_FOR_REAL_INTERVIEW) {
+    console.error('Webhook fire BLOCKED: only', assistantTurnCount, 'assistant turns. Real interviews have 20+. Sentinel may have fired prematurely.');
     return;
   }
 
