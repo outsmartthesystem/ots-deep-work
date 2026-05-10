@@ -728,13 +728,21 @@ The wrapper captures the parent's F1-F6 answers, the pattern they picked at Q12,
 - Pattern picked at Q12: [PATTERN_PICKED]
 - Blueprint tier: [TIER_DETERMINED]
 
-These placeholders are substituted with real values by the wrapper at every API call. Early in the interview, most will show "[not yet captured]" — that is expected and means the parent has not yet answered that question. By the time you generate the FEEDBACK FOR JAY block, all values are populated.
+These placeholders are substituted with real values by the wrapper at every API call. Early in the interview, most will show "[not yet captured]" — that is expected and means the parent has not yet answered that question. By the time you generate the FEEDBACK FOR JAY block, all values should be populated.
 
 WHEN YOU GENERATE THE FEEDBACK FOR JAY BLOCK, USE THESE EXACT VALUES.
 
-Do not invent. Do not retrieve from memory. Do not write "Not captured" or "Unable to determine." If a placeholder somehow shows "[not yet captured]" at the moment you generate the FEEDBACK FOR JAY block, write that text literally — it is the wrapper telling you the value was not received. Do not substitute your own guess.
+If a placeholder shows a real value (a number, a verbatim text, a tier number, a pattern name), use it directly — that's the wrapper's reliable capture and it overrides anything in your memory.
 
-For the pattern name in the Internal note, quote [PATTERN_PICKED] verbatim — that is what the parent actually said. Do not paraphrase. Do not name a different pattern than the one they picked.
+If a placeholder still shows "[not yet captured]" at the moment you generate the FEEDBACK FOR JAY block, the wrapper failed to capture that specific value for some reason. In that case, retrieve the value from the conversation history yourself:
+- For F1-F4 scores: the parent's first numeric answers after they typed "ready"
+- For F5-F6: the parent's free-text answers to those specific questions
+- For the pattern: the pattern name the parent picked at Q12 (or their own alternative if they rejected the five)
+- For the tier: the tier you determined silently before generating the Blueprint
+
+Either way, do NOT emit the literal text "[not yet captured]" or "Not captured" or any placeholder in the final FEEDBACK FOR JAY block. Every cell must contain a real value — preferably from the wrapper's capture, falling back to your own memory when the wrapper missed.
+
+For the pattern name in the Internal note, the wrapper-captured [PATTERN_PICKED] is the parent's verbatim Q12 answer. If it's populated, quote it verbatim. If it shows "[not yet captured]", write the pattern name they picked from your memory of the interview.
 
 For the tier, write [TIER_DETERMINED] as the number 1, 2, or 3 — that is what your silent tier assessment determined.
 
@@ -974,6 +982,44 @@ function isInterviewComplete(assistantMessage) {
 function stripSentinel(message) {
   // Remove the sentinel marker so the parent doesn't see it in the chat.
   return message.replace(COMPLETION_SENTINEL, '').trim();
+}
+
+function stripFeedbackBlockForDisplay(message) {
+  // The model emits the FEEDBACK FOR JAY block as part of the final response,
+  // because the block contains structured data Jay needs to see in the email.
+  // But the parent should NOT see this block in their chat — it's internal
+  // tooling, not parent-facing content.
+  //
+  // This function strips the FEEDBACK FOR JAY block from the parent's visible
+  // chat while leaving the closing message intact. The stripped block is still
+  // in the original message string that gets stored in conversationHistory and
+  // sent in the webhook payload — the wrapper just doesn't render it.
+  //
+  // Detection: find the start of the FEEDBACK FOR JAY block (matching either
+  // bold-wrapped or plain markdown title) and the start of the closing message
+  // ("That's everything"). Remove everything between them.
+
+  // Find the start of the FEEDBACK FOR JAY block. Match with or without
+  // bold markdown asterisks, with the dash literal or em-dash variant.
+  const feedbackStart = message.search(/\*?\*?FEEDBACK FOR JAY\b/i);
+  if (feedbackStart === -1) {
+    return message; // no block present, nothing to strip
+  }
+
+  // Find the start of the closing message.
+  const closingStart = message.indexOf("That's everything");
+  if (closingStart === -1 || closingStart <= feedbackStart) {
+    // No closing message found after the block, or the block appeared after
+    // closing (impossible in valid output but defensive). Strip everything
+    // from the block start onward to be safe.
+    return message.substring(0, feedbackStart).trim();
+  }
+
+  // Keep everything before the block plus everything from the closing onward.
+  // Trim the optional "---" separator that the prompt template includes.
+  const before = message.substring(0, feedbackStart).trim();
+  const after = message.substring(closingStart).trim();
+  return (before ? before + '\n\n' : '') + after;
 }
 
 function buildTranscriptPayload() {
@@ -1452,13 +1498,24 @@ async function sendMessage() {
     // history stays clean if anything ever surfaces it. The API has already seen the noted version.
     // We replace the last user message with the clean version after a successful response.
     conversationHistory[conversationHistory.length - 1] = { role: 'user', content: userText };
+
+    // The conversation history stores the FULL message (including the FEEDBACK FOR
+    // JAY block on the final turn). The webhook reads from history, so Jay's email
+    // gets the complete data. But the parent should not see the FEEDBACK FOR JAY
+    // block in their chat — it's internal tooling, not parent-facing content.
+    // Store the full cleaned message; render only the display-stripped version.
     conversationHistory.push({ role: 'assistant', content: cleanedMessage });
-    renderAssistantMessage(cleanedMessage);
+    const displayMessage = interviewComplete
+      ? stripFeedbackBlockForDisplay(cleanedMessage)
+      : cleanedMessage;
+    renderAssistantMessage(displayMessage);
 
     // After the assistant message renders, detect whether it's asking F1-F6
     // or Q12 (pattern pick). This sets window.activeFeedbackQuestion or
     // window.activePatternQuestion so the next user message gets captured
-    // correctly. Detection runs on the cleaned message text.
+    // correctly. Detection runs on the cleaned message text (full version
+    // so detection can match phrases that appear in the FEEDBACK FOR JAY block
+    // if the model emits an F-question there for some reason).
     detectAndUpdateActiveQuestion(cleanedMessage);
 
     // Save session state after every successful turn so the parent can recover
