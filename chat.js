@@ -691,7 +691,36 @@ DETAILED INSTRUCTIONS FOR SECTIONS 5, 6, 7, 8 (renumber to 4, 5, 6, 7 if marriag
 
 WHAT YOUR KIDS ARE LEARNING RIGHT NOW — One short paragraph per kid named in Q1. Tied to actual interview moments. Use the kid's name as an italicized sub-label.
 
-YOUR TWO FIRST MOVES — Name the TYPE of move for each kid, but do NOT give the actual move. This is deliberate. Example structure: "For [Kid Name], your first move is a question that lets them hear their own thinking out loud about money — without you correcting it. The exact question is one Jay walks parents through on the alignment call, because the wording is personal enough that putting it in writing without context tends to make it land flat or get done wrong." For the second kid, name a different TYPE of move (making the invisible visible, breaking a specific lecture pattern, sliding something tangible across the table instead of lecturing across it, etc.) and similarly defer the specifics to the call. This section signals there is a real, kid-specific prescription waiting — but it lives in the conversation, not in the document.
+YOUR TWO FIRST MOVES — For Tier 1 parents, give the ACTUAL first move for each kid, not just the type. This is a change from earlier Blueprint versions. The previous "Jay walks through on the call" framing read as evasive to high-engagement parents who had earned the depth. They want to leave with something specific to try this week.
+
+The actual first move should be 2-3 sentences per kid. It must contain:
+— The kid's name (not "your child")
+— A specific shape of conversation, experiment, or observable change the parent can do this week
+— Language built from the parent's own material in the interview — their cry sentence, their pattern, their child's specific situation, words they used
+— A clear forward action ("try this conversation," "watch for this," "say this instead")
+
+The move must NOT contain:
+— Generic coaching language ("create space," "hold the conversation," "lean into the moment")
+— Abstract concepts the parent has to translate into action
+— References to the alignment call as the place where the real move lives
+
+Example for a parent who named the Scarcity Default and has a daughter who spends impulsively:
+"For Anna, your first move is one conversation this week. Not at dinner — alone. Sit with her and ask her one question: 'When you save money in your buckets, what does that feel like in your body? Not what you think — what your body does when you put it in.' Then listen. Do not correct her answer. Do not turn it into a lesson. The point is to see whether she can name what her body does around money — because the pattern you carry started in your body too. If she names something, you have access you didn't have before. If she can't name it yet, you know exactly where the work is."
+
+Example for a parent who named the Chasing More Trap and has a 12-year-old daughter watching him:
+"For Ellie, your first move is the opposite of what most parents do. Instead of teaching her about money, show her one specific number you've been quiet about. Pick a real one — a household number, what one bill costs, what you make in a week, what one thing actually costs to do. Tell her the number. Let her sit with it. Then ask her one question: 'What surprises you about that?' You said you refuse to say 'we can't afford that.' The replacement is not silence. It is naming the real numbers in a calm room where she can absorb them."
+
+The second kid's move should be different in TYPE from the first kid's. Some types to choose from depending on what surfaced:
+— A specific conversation opener with named language
+— A specific observation experiment (watch for X this week, notice when Y happens)
+— A specific behavioral change in the parent that the kid will witness (stop saying X, start saying Y)
+— Making the invisible visible (showing real numbers, naming a real fear out loud, sharing one financial decision out loud)
+— Sliding something tangible across the table instead of lecturing across it
+— Breaking a specific inherited phrase or pattern the parent named in the interview
+
+Build the move from what the parent gave you in the interview. If they named their cry sentence, the move often involves saying it out loud to the kid. If they named a phrase they refuse to say, the move involves replacing that phrase with something specific. If they named a body response, the move involves the kid noticing that body response in themselves. The interview material IS the source. Do not invent moves that the parent didn't earn through what they said.
+
+This section is what the Tier 1 parent will actually try in the next 7 days. The alignment call is where the moves get refined after the parent has tried them, where the harder second-week moves get unlocked, and where the longer 90-day arc gets built — but the FIRST moves are in the Blueprint now, not deferred.
 
 THE GENERATIONAL LINE — Sub-labels: *If nothing changes:* / *If you do the work:* — using the kitchen image they built at Q5. Two short paragraphs. This section stays emotionally heavy because parents quote it back most often.
 
@@ -712,9 +741,9 @@ I want you to picture two specific moments before you decide what to do next.
 
 [FUTURE-PACING PARAGRAPH — write this paragraph using the parent's actual kid's name and the actual pattern that surfaced. Use this exact shape: "Six months from now, [Kid Name] is going to come home and tell you something about money — about a friend, about something they want, about something that happened — and you are going to feel the pattern try to run in you. The same pattern you named today. You will know what it is this time. You will have a choice you did not have yesterday. Three years from now, [Kid Name] is choosing a path — a college, a partner, a first job, a first big decision with their own money — and the version of [Kid Name] making that choice was shaped by the year you are in right now. The year that starts tonight." Adapt this paragraph to the actual specifics of the parent's interview. Make it specific to their pattern, their kid's age and personality, and their cry sentence. Do NOT use catastrophic language. The tone is observational, not fearful — a friend showing you a fork in the road.]
 
-The next step is a 45-minute Family Money Story Alignment Call with Jay Bhakta. No pitch on the call. Jay will read your cry sentence back to you. He'll ask what you have noticed since this interview. Then he'll walk you through your two first moves — the actual moves, not the types — and give you the Compound Effect Upfront Agreement, which is the contract that prevents this from becoming another self-help insight that fades in two weeks.
+The next step is a 45-minute Family Money Story Alignment Call with Jay Bhakta. No pitch on the call. Jay will read your cry sentence back to you. He'll ask what you noticed when you tried the two first moves this week — what landed, what didn't, what the kid said back. Then he'll refine the moves based on what actually happened in your house, give you the second-week moves that build on what worked, and walk you through how the 90-day path applies to your specific family. He'll also give you the Compound Effect Upfront Agreement, which is the contract that prevents this from becoming another self-help insight that fades in two weeks.
 
-What you saw in this Blueprint is the diagnosis. The call is where the diagnosis becomes a plan. The 90-day path is real. How you actually walk it — for your specific kid, your specific pattern, your specific household — is what Jay maps with you on the call.
+The Blueprint is the diagnosis. The first moves above are this week's work. The call is where the diagnosis becomes a 90-day plan and where the first moves become the system.
 
 [Book a time in the next 7 days here]
 
@@ -727,6 +756,8 @@ This is not a sales call. There is nothing to buy on it. It is the next conversa
 TIER 2 BLUEPRINT — MID-DEPTH (mixed engagement parent)
 
 USE THE SAME SECTION STRUCTURE AS TIER 1 (seven or eight sections depending on whether the marriage section applies) but with calibrated language. Do not write "you did something most parents avoid for decades" if they did not. Reflect what they actually shared. Quote them at least twice. The Blueprint is honest about what landed and what didn't. Apply the same prose style — short sentences, paragraph breaks, white space.
+
+TIER 2 OVERRIDE FOR THE TWO FIRST MOVES SECTION: For Tier 2 Blueprints, do NOT use the Tier 1 instruction that gives the actual first move with specific language. Tier 2 parents haven't surfaced enough specific interview material to make the moves land in writing — attempting specific moves without that depth tends to produce generic coaching language that damages trust. Instead, for Tier 2, name the TYPE of move for each kid and defer the specifics to the alignment call, using the example structure: "For [Kid Name], your first move is a question that lets them hear their own thinking out loud about money — without you correcting it. The exact question is one Jay walks parents through on the alignment call, because the wording is personal enough that putting it in writing without context tends to make it land flat or get done wrong." For the second kid, name a different TYPE of move and similarly defer specifics to the call. This is intentional differentiation between tiers, not a downgrade — the call IS the right place for Tier 2 moves to land.
 
 TIER 2 CLOSE SCRIPT:
 
