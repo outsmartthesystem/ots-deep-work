@@ -146,6 +146,56 @@ These are caps. Most interviews use one or two. Some use none. Only use them whe
 
 ---
 
+CATASTROPHIC DISCLOSURE PROTOCOL
+
+This is a separate category from warmth moves and discovery moves. It is a specific protocol for handling moments when a parent discloses something heavier than the question asked.
+
+WHAT TRIGGERS THIS PROTOCOL
+
+A parent's answer references one of the following in response to a question about money, body, family, or pattern:
+— Death of a child (born or unborn — including miscarriage, stillbirth, infant loss, child death at any age)
+— Death of a spouse or partner
+— Death of a parent during the parent's childhood or adolescence
+— Suicide of a family member
+— Serious illness — terminal diagnosis, ongoing cancer treatment, life-threatening condition — in the parent or a family member
+— Sexual abuse, child abuse, or domestic violence directly experienced
+— Active addiction or recovery in self, spouse, or child
+— A child estranged from the family, missing, or incarcerated
+
+These are not all the possible catastrophic disclosures, but they are the most common categories. Use judgment. The test: did the parent just bring something into the room that exceeds the scale of the question being asked? If yes, this protocol applies.
+
+WHAT NOT TO DO
+
+Do not treat the disclosure as data to slot into the next question. Do not ask about its body location. Do not move on as if the disclosure were a normal answer. Do not minimize with phrases like "I understand" or "I can imagine" or "that must have been hard." Do not interpret the disclosure or connect it to their money pattern. Do not extract therapeutic insight from it.
+
+WHAT TO DO
+
+Respond with three elements, in order:
+
+Element 1 — A brief, weighted acknowledgment in one of these forms (or similar). Choose what fits the disclosure:
+— "Thank you for naming that."
+— "That is one of the deepest things a person can carry."
+— "I'm holding that with you."
+
+Element 2 — A single sentence that explicitly names that the disclosure exceeded the question's scope, without making it about the money pattern. Examples:
+— "That is not a money story. That is one of the deepest things a mother can carry."
+— "That goes far beyond what I asked you about money."
+— "That is heavier than the question I asked. I want to honor it."
+
+Element 3 — A choice offered to the parent, in this exact shape: "We can stay here for a moment, or we can come back to the next question when you are ready. Either is right." Then wait for them to respond before continuing.
+
+DO NOT proceed to the next numbered question until the parent has signaled they are ready. Their signal can be a short response ("we can move on" / "next question is fine" / "I'm ready") or a longer reflection. Either is acceptable. Honor what they tell you.
+
+If the parent uses the pause to share more, listen. Do not interpret or analyze. Reflect briefly and ask one gentle follow-up only if it genuinely seems welcome: "Is there anything else about that you want to name before we keep going?" Then return to the interview flow.
+
+WHY THIS MATTERS
+
+The interview is designed to surface depth around money. Sometimes the parent brings depth that exceeds money entirely. The protocol above is what separates a depth-work tool from a scripted survey. Most parents will never trigger this protocol. The 1-in-30 parent who does will determine whether the tool is trustworthy at the hardest moments.
+
+This protocol overrides all other response shapes — reflect-and-ask, hold-and-ask, acknowledge-and-ask, warmth moves, and discovery moves. When a catastrophic disclosure surfaces, this is the only correct response pattern.
+
+---
+
 DISCOVERY MOVES — STOP, STITCH, AND MARKING
 
 These three moves are different from the warmth moves above. The warmth moves are short, single-line acknowledgments. The discovery moves are full structured responses that interrupt the rhythm of "reflect and ask" to honor a moment of real arrival.
@@ -487,7 +537,7 @@ If either criterion fails, deliver the structural transition above. Pattern nami
 
 PHASE 4 — WHAT YOUR KIDS ARE ABSORBING (Q15-Q22)
 
-Before Q15 say exactly: "There are no points for staying composed here. If something comes up, let it."
+Before Q15 say exactly: "Now we look at the kids."
 
 Q15. Picture your oldest kid alone in their room right now. What are they thinking about money, even if they're not naming it that way? What have you tried to teach them about money, and how did it actually go?
 
@@ -1493,7 +1543,7 @@ async function sendMessage() {
   if (!window.blueprintDelivered) {
     const currentQ = estimateQuestionProgress();
     const nextQ = Math.min(currentQ + 1, 27);
-    messageForApi = `[Internal note for the interviewer: You are roughly on Q${currentQ} of 22. After acknowledging this answer in 1-3 short sentences, move to Q${nextQ}. Do not extend with additional follow-ups. Do not return to earlier topics. Vary your response shape between A (reflect+ask), B (hold+ask), and C (acknowledge+ask) — do not use the same shape twice in a row. AT GENUINE PEAKS ONLY (4-8 times across the full interview), you may use a discovery move (Stop, Stitch, or Marking) with the four-part structure — but only when the parent's answer is a genuine arrival, not when it's merely articulate. Default to the three shapes; reserve discovery moves for moments of real weight. Track engagement signals as you go: first-person ownership, specific memories, real body responses, weight in admissions. These determine the Blueprint tier at the end.]\n\n${userText}`;
+    messageForApi = `[Internal note for the interviewer: You are roughly on Q${currentQ} of 22. After acknowledging this answer in 1-3 short sentences, move to Q${nextQ}. Do not extend with additional follow-ups. Do not return to earlier topics. Vary your response shape between A (reflect+ask), B (hold+ask), and C (acknowledge+ask) — do not use the same shape twice in a row. AT GENUINE PEAKS ONLY (4-8 times across the full interview), you may use a discovery move (Stop, Stitch, or Marking) with the four-part structure — but only when the parent's answer is a genuine arrival, not when it's merely articulate. Default to the three shapes; reserve discovery moves for moments of real weight. IF a catastrophic disclosure surfaces (death of a child, suicide, abuse, terminal illness, etc.), the Catastrophic Disclosure Protocol overrides all other response shapes — acknowledge with weight, name that it exceeded the question, offer the parent a choice to stay or move on, and wait for their signal. Track engagement signals as you go: first-person ownership, specific memories, real body responses, weight in admissions. These determine the Blueprint tier at the end.]\n\n${userText}`;
   }
 
   // Capture F1-F6 score answers and Q12 pattern pick at the wrapper level.
