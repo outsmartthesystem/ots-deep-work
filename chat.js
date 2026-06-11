@@ -1695,6 +1695,7 @@ function resumeSession(state) {
     }
   });
 
+  updateProgress();
   document.getElementById('userInput').focus();
 }
 // ─────────────────────────────────────────────────────────────────────────────
@@ -1712,6 +1713,18 @@ function estimateQuestionProgress() {
   const assistantTurns = conversationHistory.filter(m => m.role === 'assistant').length;
   const estimate = Math.max(1, assistantTurns - 1);
   return Math.min(estimate, 22);
+}
+
+function updateProgress() {
+  // Whisper-thin amber bar under the chat header. Driven by the same turn-count
+  // estimate the interviewer note uses. Pre-Blueprint it caps at 96% so it never
+  // claims "done" early; starts at a visible 4% so the parent sees life from turn one.
+  const fill = document.getElementById('progressFill');
+  if (!fill) return;
+  const pct = window.blueprintDelivered
+    ? 100
+    : Math.min(96, 4 + Math.round((estimateQuestionProgress() / 22) * 92));
+  fill.style.width = pct + '%';
 }
 
 function isBlueprintTrigger(userText) {
@@ -1910,6 +1923,7 @@ async function sendMessage() {
     // from a refresh or crash. saveSession() is cheap — milliseconds — so
     // running it on every turn has negligible cost.
     saveSession();
+    updateProgress();
 
     // If the interview is complete, fire the webhook to send the transcript to Make.
     // This happens AFTER the message renders so the parent sees the closing message
@@ -2247,16 +2261,41 @@ function convertBlueprintToPDF(html) {
 }
 
 function startSession() {
+  // Guard against double-starts (double Enter press or double-click on Begin).
+  if (window.sessionStarted) return;
+
   const nameInput = document.getElementById('inputName');
   const emailInput = document.getElementById('inputEmail');
+  const nameError = document.getElementById('nameError');
+  const emailError = document.getElementById('emailError');
   const name = nameInput.value.trim();
   const email = emailInput.value.trim();
 
+  // Reset any prior validation state before re-checking.
+  if (nameError) nameError.classList.remove('visible');
+  if (emailError) emailError.classList.remove('visible');
+  nameInput.style.borderBottomColor = '';
+  emailInput.style.borderBottomColor = '';
+
   if (!name) {
     nameInput.focus();
-    nameInput.style.borderBottomColor = '#c9a96e';
+    nameInput.style.borderBottomColor = '#d4a574';
+    if (nameError) nameError.classList.add('visible');
     return;
   }
+
+  // The Blueprint is delivered by email — a missing or malformed address means
+  // 35-45 minutes of work with no deliverable, so require a plausible email.
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) {
+    emailInput.focus();
+    emailInput.style.borderBottomColor = '#d4a574';
+    if (emailError) emailError.classList.add('visible');
+    return;
+  }
+
+  window.sessionStarted = true;
+  const beginBtn = document.getElementById('beginButton');
+  if (beginBtn) { beginBtn.disabled = true; beginBtn.textContent = 'Beginning…'; }
 
   window.parentName = name;
   window.parentEmail = email;
@@ -2287,13 +2326,14 @@ function startSession() {
   // On the very first render, we want the parent to see the TOP of the opening
   // message — not the bottom of it. Subsequent messages keep using scrollToBottom.
   setTimeout(scrollToTop, 50);
+  updateProgress();
   document.getElementById('userInput').focus();
 }
 
 document.addEventListener('keydown', function(e) {
   if (e.key === 'Enter') {
     const intake = document.getElementById('intake-screen');
-    if (intake && intake.style.display !== 'none') {
+    if (intake && intake.style.display !== 'none' && !window.resumeCardVisible) {
       startSession();
     }
   }
@@ -2316,20 +2356,69 @@ window.onload = function() {
   const savedSession = loadSession();
   if (savedSession && savedSession.conversationHistory && savedSession.conversationHistory.length > 2) {
     // Only offer resume if there's meaningful progress (more than the
-    // initial seed turns). Build a friendly prompt that doesn't reveal
-    // technical details to the parent.
+    // initial seed turns). Show a styled in-page card instead of a native
+    // browser dialog — same logic, brand-worthy presentation.
     const hoursAgo = Math.round((Date.now() - new Date(savedSession.savedAt).getTime()) / (1000 * 60 * 60));
     const timeAgo = hoursAgo < 1 ? 'a few minutes ago' : (hoursAgo === 1 ? 'about an hour ago' : 'about ' + hoursAgo + ' hours ago');
-    const message = 'It looks like you started this interview ' + timeAgo + ' as ' + savedSession.parentFirstName + '.\n\nWould you like to pick up where you left off?\n\nClick OK to resume, or Cancel to start over.';
-
-    if (window.confirm(message)) {
-      resumeSession(savedSession);
-      return;
-    } else {
-      // Parent chose to start fresh. Clear the saved session.
-      clearSession();
-    }
+    showResumeCard(savedSession, timeAgo);
+    return;
   }
 
   document.getElementById('inputName').focus();
 };
+
+function showResumeCard(savedSession, timeAgo) {
+  const slot = document.getElementById('resume-slot');
+  if (!slot) {
+    // Markup missing (shouldn't happen) — fall back to the native dialog so
+    // the parent never loses access to their saved progress.
+    if (window.confirm('Pick up where you left off?')) { resumeSession(savedSession); }
+    else { clearSession(); }
+    return;
+  }
+
+  // While the card is visible, the global Enter handler must not start a
+  // fresh session underneath it.
+  window.resumeCardVisible = true;
+
+  const card = document.createElement('div');
+  card.className = 'resume-card';
+
+  const eyebrow = document.createElement('p');
+  eyebrow.className = 'resume-eyebrow';
+  eyebrow.textContent = 'Welcome back';
+
+  const msg = document.createElement('p');
+  // textContent (not innerHTML) — the saved name is user-supplied input.
+  msg.textContent = 'You started this interview ' + timeAgo + ' as ' +
+    savedSession.parentFirstName + '. Your answers are saved — pick up right where you left off.';
+
+  const actions = document.createElement('div');
+  actions.className = 'resume-actions';
+
+  const yes = document.createElement('button');
+  yes.className = 'resume-yes';
+  yes.textContent = 'Resume interview';
+  yes.onclick = function() {
+    window.resumeCardVisible = false;
+    card.remove();
+    resumeSession(savedSession);
+  };
+
+  const no = document.createElement('button');
+  no.className = 'resume-no';
+  no.textContent = 'Start over';
+  no.onclick = function() {
+    window.resumeCardVisible = false;
+    clearSession();
+    card.remove();
+    document.getElementById('inputName').focus();
+  };
+
+  actions.appendChild(yes);
+  actions.appendChild(no);
+  card.appendChild(eyebrow);
+  card.appendChild(msg);
+  card.appendChild(actions);
+  slot.appendChild(card);
+}

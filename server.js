@@ -4,7 +4,58 @@ const path = require('path');
 const nodemailer = require('nodemailer');
 
 const app = express();
+app.set('trust proxy', 1); // Render terminates TLS at a proxy; needed for real client IPs.
 app.use(express.json({ limit: '10mb' }));
+
+// SECURITY: express.static(__dirname) serves the whole repo, so explicitly
+// block backend source, manifests, and git internals from public download.
+app.use((req, res, next) => {
+  const p = req.path.toLowerCase();
+  if (
+    p === '/server.js' ||
+    p === '/package.json' ||
+    p === '/package-lock.json' ||
+    p.startsWith('/.git') ||
+    p.startsWith('/node_modules')
+  ) {
+    return res.status(404).send('Not found');
+  }
+  next();
+});
+
+// Basic per-IP rate limit on the API. The interview averages about one message
+// per minute, so 25 requests per 5 minutes is generous for a real parent while
+// stopping bots from burning the Anthropic key or spamming transcripts.
+const rateBuckets = new Map();
+function isRateLimited(ip) {
+  const now = Date.now();
+  const WINDOW_MS = 5 * 60 * 1000;
+  const MAX_REQUESTS = 25;
+  const hits = (rateBuckets.get(ip) || []).filter(t => now - t < WINDOW_MS);
+  if (hits.length >= MAX_REQUESTS) {
+    rateBuckets.set(ip, hits);
+    return true;
+  }
+  hits.push(now);
+  rateBuckets.set(ip, hits);
+  // Opportunistic cleanup so the map never grows unbounded.
+  if (rateBuckets.size > 5000) {
+    for (const [key, times] of rateBuckets) {
+      if (!times.some(t => now - t < WINDOW_MS)) rateBuckets.delete(key);
+    }
+  }
+  return false;
+}
+
+app.use('/api/', (req, res, next) => {
+  if (isRateLimited(req.ip)) {
+    // Shaped like Anthropic's rate-limit error so the existing client-side
+    // retry/backoff logic in chat.js handles it gracefully.
+    return res.status(429).json({ error: { type: 'rate_limit_error', message: 'Too many requests. Please wait a moment.' } });
+  }
+  next();
+});
+
 app.use(express.static(path.join(__dirname)));
 
 const transporter = nodemailer.createTransport({
@@ -27,6 +78,9 @@ app.post('/api/chat', async (req, res) => {
     const body = { ...req.body };
     delete body.useFastModel;
     body.model = model;
+    // Clamp token budget — the page never requests more than 6000, so anything
+    // higher is someone hitting the endpoint directly.
+    body.max_tokens = Math.min(Number(body.max_tokens) || 1200, 8000);
 
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
@@ -128,7 +182,14 @@ ${transcriptFormatted}
 });
 
 // ─── TEST ENDPOINT ─────────────────────────────────────────────────────────
+// SECURITY: gated behind TEST_SAVE_KEY. Without the gate this was a public GET
+// that fired a real email to Jay's inbox on every hit — bot traffic alone
+// could flood it. Set TEST_SAVE_KEY in Render env, then call
+// /api/test-save?key=<value> to use it. If the env var is unset, always 404.
 app.get('/api/test-save', async (req, res) => {
+  if (!process.env.TEST_SAVE_KEY || req.query.key !== process.env.TEST_SAVE_KEY) {
+    return res.status(404).send('Not found');
+  }
   try {
     const testPayload = {
       parentName: 'Test Parent',
