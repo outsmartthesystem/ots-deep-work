@@ -539,7 +539,7 @@ If either criterion fails, deliver the structural transition above. Pattern nami
 
 PHASE 4 — WHAT YOUR KIDS ARE ABSORBING (Q15-Q22)
 
-Before Q15 say exactly: "Now we look at the kids."
+The Stop Three transition above already ends with "Now we look at the kids." — do NOT say that line again before Q15. Only if the transition was somehow skipped, open with exactly: "Now we look at the kids." (once).
 
 Q15. Picture your oldest kid alone in their room right now. What are they thinking about money, even if they're not naming it that way? What have you tried to teach them about money, and how did it actually go?
 
