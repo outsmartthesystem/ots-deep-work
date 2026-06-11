@@ -375,7 +375,7 @@ You want your kids ready for real life, not just good at school. School can teac
 
 If you've ever thought *"my kids are smart, but I'm not sure they're ready for real life"* — this interview is for you. Real change in a family doesn't start with the kid. It starts with the money story the parent is living.
 
-This is the Family Money Story Interview, the front door to Outsmart the System, run by Jay Bhakta. In the next 35 to 45 minutes, you'll see the money pattern you inherited, what your kids are absorbing, and where the work begins. By the end, you'll have a custom Blueprint and a clear next step.
+This is the Family Money Story Interview, the front door to Outsmart the System, run by Jay Bhakta. In the next 35 to 45 minutes, you'll see the money pattern you inherited, what your kids are absorbing, and where the work begins. By the end, you'll have a custom Blueprint and a clear next step. Jay personally reviews each interview.
 
 This is deep work, not budgeting tips. There are no right answers. You can skip any question. You can pause anytime.
 
@@ -665,13 +665,13 @@ LOW-ENGAGEMENT signals (each one is -1):
 — Description of self as already doing the work and not needing more
 
 TIER 1 — FULL DEPTH BLUEPRINT (high-engagement, score +4 or higher):
-Use the full Blueprint structure with all 9 sections, the celebratory close, and the call invitation. Pattern named clearly. Two first moves specific. 90-day path concrete. Cry quote pulled with weight. Close script as written. The parent earned this.
+Use the full Tier 1 structure defined in the TIER 1 BLUEPRINT section below — opener through the mirror + invitation close — with the call invitation. Pattern named clearly. Two first moves specific. 90-day path concrete. Cry quote pulled with weight. Close script as written. The parent earned this.
 
 TIER 2 — MID-DEPTH BLUEPRINT (mixed engagement, score 0 to +3):
-Use the 9-section structure but with measured language. Do not call rare what was not rare. Acknowledge what they did share. Do not invent depth. The close is the "save and reflect" version below — no call invitation yet, but the door is open. Two first moves still appear (they earned that much). 90-day path is shorter and less prescriptive.
+Use the Tier 2 structure defined in the TIER 2 BLUEPRINT section below, with measured language. Do not call rare what was not rare. Acknowledge what they did share. Do not invent depth. The close is the "save and reflect" version below — it INCLUDES the calendar link, framed as "when you decide it is for you." The agency is the parent's. First moves appear as TYPES with specifics deferred to the call (per the Tier 2 override). 90-day path is shorter and less prescriptive.
 
 TIER 3 — LIGHT BLUEPRINT (low-engagement, score -1 or lower):
-Use a shorter structure — sections 1, 2, 5, 6, 7, and a respectful close. No pattern naming if they did not pick a pattern. No celebratory language. Acknowledge what they shared as observation, not as transformation. The close is the "not the deepest version" version below. No call invitation. The door is open without pressure.
+Use the Tier 3 structure defined in the TIER 3 BLUEPRINT section below — the framing note, the six-section light structure, and the respectful close. No pattern naming if they did not pick a pattern. No celebratory language. Acknowledge what they shared as observation, not as transformation. The close is the "not the deepest version" version below. No call invitation. The door is open without pressure.
 
 This assessment is not optional. Your single most important judgment in this interview is matching the Blueprint to the actual quality of the conversation. A parent who reads a celebratory Blueprint after a low-engagement interview will know it is false. A parent who reads a respectful, accurate Blueprint after a low-engagement interview will trust the system, even if they don't book the call. The trust is more valuable than the conversion.
 
@@ -1268,6 +1268,14 @@ function detectAndUpdateActiveQuestion(assistantMessage) {
   // user response is the pattern pick.
   if (msg.includes('which of these patterns feels closest') ||
       msg.includes('which of these feels closest to you')) {
+    window.activePatternQuestion = true;
+  }
+
+  // Re-arm pattern capture when the skepticism move fires. If the parent
+  // rejected all five patterns, the assistant asks for their own rule —
+  // the NEXT user message is the parent's real pattern articulation and
+  // must overwrite the earlier "None"/rejection capture.
+  if (msg.includes("what is the rule that's actually running you")) {
     window.activePatternQuestion = true;
   }
 }
@@ -2235,7 +2243,8 @@ async function downloadBlueprint() {
     filename: 'OTS-Family-Money-Story-Blueprint.pdf',
     image: { type: 'jpeg', quality: 0.98 },
     html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff' },
-    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+    pagebreak: { mode: ['css', 'legacy'] }
   };
 
   try { await html2pdf().set(opt).from(pdfDiv).save(); } catch(e) { console.error('PDF error:', e); }
@@ -2255,6 +2264,7 @@ function convertBlueprintToPDF(html) {
     .replace(/class="blueprint-quote"/g, 'class="pdf-quote"')
     .replace(/class="blueprint-cry-quote"/g, 'class="pdf-cry-quote"')
     .replace(/class="blueprint-signature"/g, 'class="pdf-signature"')
+    .replace(/class="blueprint-vector-pivot"/g, 'class="pdf-vector-pivot"')
     .replace(/class="blueprint-cta"/g, 'class="pdf-cta"')
     .replace(/class="blueprint-cta-heading"/g, 'class="pdf-section-label"')
     .replace(/<button class="download-btn"[^>]*>.*?<\/button>/gs, '');
@@ -2305,7 +2315,7 @@ function startSession() {
   const chatScreen = document.getElementById('chat-screen');
   chatScreen.style.display = 'flex';
 
-  const opening = "You want your kids ready for real life, not just good at school. School can teach academics. It does not reliably teach money, responsibility, or judgment under pressure.\n\nIf you've ever thought <em>\"my kids are smart, but I'm not sure they're ready for real life\"</em> \u2014 this interview is for you. Real change in a family doesn't start with the kid. It starts with the money story the parent is living.\n\nThis is the Family Money Story Interview, the front door to Outsmart the System, run by Jay Bhakta. In the next 35 to 45 minutes, you'll see the money pattern you inherited, what your kids are absorbing, and where the work begins. By the end, you'll have a custom Blueprint and a clear next step.\n\nThis is deep work, not budgeting tips. There are no right answers. You can skip any question. You can pause anytime.\n\nFind a quiet room. Phone away. Do this alone \u2014 you can talk to your spouse after.\n\nLet's start simple. Who is under your roof right now? First names, ages, and one sentence about each child that only a parent would know.";
+  const opening = "You want your kids ready for real life, not just good at school. School can teach academics. It does not reliably teach money, responsibility, or judgment under pressure.\n\nIf you've ever thought <em>\"my kids are smart, but I'm not sure they're ready for real life\"</em> \u2014 this interview is for you. Real change in a family doesn't start with the kid. It starts with the money story the parent is living.\n\nThis is the Family Money Story Interview, the front door to Outsmart the System, run by Jay Bhakta. In the next 35 to 45 minutes, you'll see the money pattern you inherited, what your kids are absorbing, and where the work begins. By the end, you'll have a custom Blueprint and a clear next step. Jay personally reviews each interview.\n\nThis is deep work, not budgeting tips. There are no right answers. You can skip any question. You can pause anytime.\n\nFind a quiet room. Phone away. Do this alone \u2014 you can talk to your spouse after.\n\nLet's start simple. Who is under your roof right now? First names, ages, and one sentence about each child that only a parent would know.";
 
   conversationHistory.push({ role: 'user', content: 'My name is ' + name + '.' });
   conversationHistory.push({ role: 'assistant', content: opening });
