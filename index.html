@@ -14,7 +14,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;1,400&family=Cormorant+Garamond:ital,wght@1,500&family=Inter:ital,wght@0,400;0,500;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <!-- html2pdf is vendored locally (was cdnjs) so it is same-origin and pinned. -->
+  <script src="vendor/html2pdf.bundle.min.js" defer></script>
   <style>
     :root {
       --bg: #0c0a0d;
@@ -188,6 +189,104 @@
 
     .intake-btn:disabled { opacity: 0.5; cursor: wait; }
 
+    /* ── EXPECTATIONS / BEST-FOR ───────────────────── */
+    .intake-expect {
+      list-style: none;
+      margin: 4px 0 24px;
+      padding: 0;
+    }
+
+    .intake-expect li {
+      font-family: var(--font-body);
+      font-size: 14.5px;
+      line-height: 1.55;
+      color: var(--text-secondary);
+      padding: 7px 0 7px 22px;
+      position: relative;
+    }
+
+    .intake-expect li::before {
+      content: '';
+      position: absolute;
+      left: 2px;
+      top: 15px;
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--accent);
+      opacity: 0.8;
+    }
+
+    .intake-best {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    /* ── CONSENT ROW ───────────────────────────────── */
+    .intake-consent {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      margin-top: 28px;
+      cursor: pointer;
+    }
+
+    .intake-consent input {
+      flex-shrink: 0;
+      width: 18px;
+      height: 18px;
+      margin-top: 1px;
+      accent-color: var(--accent);
+      cursor: pointer;
+    }
+
+    .intake-consent label {
+      font-family: var(--font-body);
+      font-size: 13px;
+      line-height: 1.6;
+      color: var(--text-muted);
+      cursor: pointer;
+    }
+
+    /* ── SAFETY FOOTER ─────────────────────────────── */
+    .intake-safety {
+      margin-top: 30px;
+      padding-top: 22px;
+      border-top: 1px solid var(--border);
+      font-family: var(--font-body);
+      font-size: 12.5px;
+      line-height: 1.7;
+      color: var(--text-muted);
+      text-align: center;
+    }
+
+    .intake-safety strong { color: var(--text-secondary); font-weight: 500; }
+
+    .intake-safety a { color: var(--accent-dim); text-decoration: none; border-bottom: 1px solid var(--border-light); }
+    .intake-safety a:hover { color: var(--accent); }
+
+    /* ── CLEAR-SAVED LINK ──────────────────────────── */
+    .clear-saved {
+      background: none;
+      border: none;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 0;
+      opacity: 0.7;
+      transition: opacity 0.2s, color 0.2s;
+    }
+
+    .clear-saved:hover { opacity: 1; color: var(--terracotta); }
+
     /* ── RESUME CARD ───────────────────────────────── */
     .resume-card {
       border: 1px solid var(--border-light);
@@ -300,6 +399,19 @@
       background: var(--accent);
       opacity: 0.85;
       transition: width 0.8s ease;
+    }
+
+    .stop-label {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      text-align: center;
+      margin-top: 10px;
+      min-height: 13px;
+      transition: color 0.3s;
     }
 
     .messages-area {
@@ -639,6 +751,14 @@
     <p class="intake-subtitle">A mirror, not a quiz.<br>35 to 45 minutes that could change what your kids inherit.</p>
     <div class="intake-rule"></div>
 
+    <ul class="intake-expect">
+      <li>You&rsquo;ll answer about 22 questions, one at a time.</li>
+      <li>You can skip anything, and pause whenever you need to.</li>
+      <li>Your custom Blueprint is generated at the end.</li>
+      <li>Best done alone, in a quiet room, on a private device.</li>
+    </ul>
+    <p class="intake-best">Best for parents of kids ages 10&ndash;18</p>
+
     <div class="intake-field">
       <label class="intake-label" for="inputName">Your First Name</label>
       <input class="intake-input" type="text" id="inputName" placeholder="First name only" autocomplete="given-name">
@@ -651,9 +771,19 @@
       <p class="intake-error" id="emailError">Please enter a valid email — it's where your Blueprint goes.</p>
     </div>
 
-    <button class="intake-btn" id="beginButton" onclick="startSession()">Begin the Interview</button>
+    <label class="intake-consent" for="inputConsent">
+      <input type="checkbox" id="inputConsent">
+      <span>Save my progress on this device for 24 hours so I can pick up where I left off. This may include sensitive answers &mdash; only check this on a private device.</span>
+    </label>
 
-    <p class="intake-note">Your answers stay private. This is not a sales funnel.<br>It is 35 to 45 minutes of honest work.</p>
+    <button class="intake-btn" id="beginButton">Begin the Interview</button>
+
+    <p class="intake-note">This is a private diagnostic experience &mdash; not therapy, and not budgeting tips. Your answers are used to generate your Family Money Story Blueprint. Jay may review completed interviews so he can understand your pattern and improve the experience. You can skip any question.<br><br>At the end, you&rsquo;ll receive your Blueprint and, if the work is a fit, the option to book an alignment call. No pressure.</p>
+
+    <p class="intake-safety">
+      This is not therapy, crisis support, or financial, legal, or mental-health advice. You can stop at any time.<br>
+      If you&rsquo;re in immediate danger or emotional crisis, contact emergency services or call or text <strong>988</strong> (US Suicide &amp; Crisis Lifeline, 24/7) &mdash; <a href="https://988lifeline.org" target="_blank" rel="noopener">988lifeline.org</a>.
+    </p>
   </div>
 
   <!-- CHAT SCREEN -->
@@ -662,6 +792,7 @@
       <p class="eyebrow">Outsmart the System</p>
       <h1 id="chat-heading">Family Money Story Interview</h1>
       <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+      <p class="stop-label" id="stopLabel"></p>
     </header>
 
     <div class="messages-area" id="messagesArea">
@@ -670,13 +801,15 @@
 
     <div class="input-area">
       <textarea id="userInput" placeholder="Type your answer here..." rows="2"></textarea>
-      <button class="send-btn" id="sendButton" onclick="sendMessage()">Send</button>
+      <button class="send-btn" id="sendButton">Send</button>
     </div>
-    <p class="input-hint">Enter to send &middot; Shift+Enter for a new line</p>
+    <p class="input-hint">Enter to send &middot; Shift+Enter for a new line &middot; <button type="button" class="clear-saved" id="clearSavedBtn" hidden>Clear my saved interview</button></p>
   </div>
 
   <div id="pdf-blueprint"></div>
 
+  <!-- shared.js defines the DOM-free helpers as globals and MUST load first. -->
+  <script src="shared.js"></script>
   <script src="chat.js"></script>
 </body>
 </html>

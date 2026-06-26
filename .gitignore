@@ -1,0 +1,11 @@
+node_modules/
+npm-debug.log*
+.env
+.DS_Store
+desktop.ini
+coverage/
+
+# Temporary scaffolding (never commit)
+_*.js
+_*.txt
+*.bak
