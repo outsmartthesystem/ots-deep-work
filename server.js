@@ -211,11 +211,14 @@ function buildParentEmailHTML(parentName, blueprintText) {
   // Blueprint paragraphs are passed as already-structured plain text from the
   // browser; we wrap each block in a styled paragraph. All values are escaped.
   const esc = (s) => String(s).replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
+  // After escaping, turn any bare URL (e.g. the "Book your call here: https://…"
+  // line carried over from the Blueprint) into a real clickable link.
+  const linkify = (s) => s.replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" style="color:#a8631e;font-weight:bold;">$1</a>');
   const paragraphs = String(blueprintText || '')
     .split(/\n{2,}/)
     .map(block => block.trim())
     .filter(Boolean)
-    .map(block => `<p style="margin:0 0 18px;font-size:15px;line-height:1.75;color:#2a2a2a;white-space:pre-wrap;">${esc(block)}</p>`)
+    .map(block => `<p style="margin:0 0 18px;font-size:15px;line-height:1.75;color:#2a2a2a;white-space:pre-wrap;">${linkify(esc(block))}</p>`)
     .join('\n');
 
   return `<!DOCTYPE html><html><body style="margin:0;padding:0;background:#f5f1ea;">

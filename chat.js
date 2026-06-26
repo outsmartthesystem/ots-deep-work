@@ -612,6 +612,18 @@ function blueprintToStructuredText(root) {
   // block element becomes a paragraph separated by a blank line. Used for the
   // parent and internal emails (the on-page render and the PDF use the HTML
   // directly). Falls back to flat textContent if no block structure is found.
+  //
+  // Inline any <a href> URL into its own text first — plain-text extraction
+  // drops hrefs, which is why the "Book your call here" CTA used to arrive in
+  // the parent email with no actual link. `root` is a throwaway div, so
+  // mutating it here does not affect the on-page Blueprint.
+  root.querySelectorAll('a[href]').forEach(a => {
+    const href = (a.getAttribute('href') || '').trim();
+    const txt = (a.textContent || '').trim();
+    if (href && href !== '#' && !txt.includes(href)) {
+      a.textContent = txt ? (txt + ': ' + href) : href;
+    }
+  });
   const blockSelector = 'h1,h2,h3,h4,p,li,blockquote,div';
   const blocks = [];
   root.querySelectorAll(blockSelector).forEach(el => {
