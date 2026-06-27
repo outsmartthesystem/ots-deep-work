@@ -110,6 +110,11 @@ const transporter = nodemailer.createTransport({
 // rotated without a deploy and can never be hit directly by a stranger.
 const SHEETS_WEBHOOK_URL = process.env.SHEETS_WEBHOOK_URL || '';
 
+// Optional lead-capture webhook (e.g. a Make scenario or a GoHighLevel inbound
+// webhook). Hit at interview START so parents who abandon mid-interview still
+// reach the CRM, tagged by campaign. No-ops if unset.
+const LEAD_WEBHOOK_URL = process.env.LEAD_WEBHOOK_URL || '';
+
 // ─── INPUT VALIDATION HELPERS ───────────────────────────────────────────────
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
@@ -381,6 +386,48 @@ ${transcriptFormatted}
   }
 
   res.json({ success: true, results });
+});
+
+// ─── LEAD CAPTURE (at interview start) ───────────────────────────────────────
+// Fires when a parent passes the name+email step, before they answer anything,
+// so abandoners still reach the CRM tagged by campaign. Best-effort: validates
+// the email, forwards to LEAD_WEBHOOK_URL if set, and always responds fast so
+// the browser never waits on or surfaces an error. (Rate-limited via /api/.)
+app.post('/api/lead', async (req, res) => {
+  try {
+    const { parentName, parentEmail, sessionId, utm, timestamp } = req.body || {};
+    const name = typeof parentName === 'string' ? parentName.slice(0, 80) : '';
+    const email = typeof parentEmail === 'string' ? parentEmail.slice(0, 200) : '';
+    // Without a plausible email the lead is useless to the CRM — skip quietly.
+    if (!email || !EMAIL_RE.test(email)) {
+      return res.json({ ok: false, skipped: 'invalid_email' });
+    }
+    if (LEAD_WEBHOOK_URL) {
+      const u = utm && typeof utm === 'object' ? utm : {};
+      const capUtm = (v) => (typeof v === 'string' ? v.slice(0, 200) : '');
+      // Not awaited: respond immediately; the persistent Node process finishes
+      // the webhook call after the response is sent.
+      fetch(LEAD_WEBHOOK_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          event: 'interview_start',
+          parentName: name || 'Unknown',
+          parentEmail: email,
+          sessionId: typeof sessionId === 'string' ? sessionId.slice(0, 100) : '',
+          utmSource: capUtm(u.utm_source),
+          utmMedium: capUtm(u.utm_medium),
+          utmCampaign: capUtm(u.utm_campaign),
+          timestamp: typeof timestamp === 'string' ? timestamp.slice(0, 40) : new Date().toISOString(),
+        }),
+      }).then(() => console.log('Lead webhook sent for:', email))
+        .catch((err) => console.error('Lead webhook error:', err.message));
+    }
+    return res.json({ ok: true });
+  } catch (err) {
+    console.error('Lead error:', err.message);
+    return res.json({ ok: false });
+  }
 });
 
 // ─── TEST ENDPOINT ─────────────────────────────────────────────────────────
