@@ -651,6 +651,29 @@ function getCapturedUtm() {
   } catch (e) { return {}; }
 }
 
+function sendLeadCapture(name, email) {
+  // Fire-and-forget lead capture at interview START. Sends name + email + the
+  // captured UTMs to /api/lead so parents who abandon mid-interview still reach
+  // the CRM (tagged by campaign). Guarded to fire once; never blocks or breaks
+  // the interview.
+  if (window.leadCaptured) return;
+  window.leadCaptured = true;
+  try {
+    fetch('/api/lead', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      keepalive: true,
+      body: JSON.stringify({
+        parentName: name || '',
+        parentEmail: email || '',
+        sessionId: window.sessionId || '',
+        utm: getCapturedUtm(),
+        timestamp: new Date().toISOString(),
+      }),
+    }).catch(function () {});
+  } catch (e) { /* lead capture must never break the interview */ }
+}
+
 async function saveTranscriptCanonical() {
   // The ONE transcript save. Fires once, at interview completion. The server
   // sends the parent their Blueprint, sends Jay the full record + feedback, and
@@ -813,6 +836,9 @@ function startSession() {
   // if they refresh, lose connection, or accidentally close the tab.
   window.sessionId = generateSessionId();
   saveSession();
+
+  // Capture the lead now (at START) so abandoners still reach the CRM.
+  sendLeadCapture(name, email);
 
   renderAssistantMessage(opening);
   // Override the scrollToBottom that just fired in renderAssistantMessage().
