@@ -642,6 +642,15 @@ function blueprintToStructuredText(root) {
   return blocks.length ? blocks.join('\n\n') : (root.textContent || '').trim();
 }
 
+function getCapturedUtm() {
+  // UTMs captured by analytics.js at landing (window.OTS_UTM), with a
+  // sessionStorage fallback in case analytics.js was blocked by an ad blocker.
+  try {
+    if (window.OTS_UTM && Object.keys(window.OTS_UTM).length) return window.OTS_UTM;
+    return JSON.parse(sessionStorage.getItem('ots_utm') || '{}');
+  } catch (e) { return {}; }
+}
+
 async function saveTranscriptCanonical() {
   // The ONE transcript save. Fires once, at interview completion. The server
   // sends the parent their Blueprint, sends Jay the full record + feedback, and
@@ -662,6 +671,7 @@ async function saveTranscriptCanonical() {
         capturedTier: window.capturedTier || '',
         capturedPattern: window.capturedPattern || '',
         feedback: window.capturedFeedback || {},
+        utm: getCapturedUtm(),
         timestamp: new Date().toISOString()
       })
     });

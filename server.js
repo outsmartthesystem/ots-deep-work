@@ -243,7 +243,7 @@ function buildParentEmailHTML(parentName, blueprintText) {
 app.post('/api/save-transcript', async (req, res) => {
   const {
     sessionId, parentName, parentEmail, messages,
-    blueprintText, blueprintHTML, capturedTier, capturedPattern, feedback, timestamp,
+    blueprintText, blueprintHTML, capturedTier, capturedPattern, feedback, timestamp, utm,
   } = req.body || {};
 
   // ── Validation (audit HP5): the browser may not save arbitrary payloads. ──
@@ -274,6 +274,13 @@ app.post('/api/save-transcript', async (req, res) => {
     year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit'
   });
   const fb = feedback && typeof feedback === 'object' ? feedback : {};
+  // UTM attribution captured at landing (optional). Coerce to safe strings so a
+  // crafted client payload can't inject anything into the email/webhook.
+  const u = utm && typeof utm === 'object' ? utm : {};
+  const capUtm = (v) => (typeof v === 'string' ? v.slice(0, 200) : '');
+  const utmSource = capUtm(u.utm_source);
+  const utmMedium = capUtm(u.utm_medium);
+  const utmCampaign = capUtm(u.utm_campaign);
   const transcriptFormatted = formatTranscript(messages);
   const results = { parentEmail: false, internalEmail: false, sheets: false };
 
@@ -304,6 +311,12 @@ Date: ${dateStr}
 Assistant turns: ${assistantTurns}
 Blueprint Tier: ${capturedTier || 'Not captured'}
 Pattern Picked: ${capturedPattern || 'Not captured'}
+
+CAMPAIGN ATTRIBUTION
+--------------------
+utm_source:   ${utmSource || '—'}
+utm_medium:   ${utmMedium || '—'}
+utm_campaign: ${utmCampaign || '—'}
 
 FEEDBACK SCORES
 ---------------
@@ -351,6 +364,9 @@ ${transcriptFormatted}
           messageCount: assistantTurns,
           blueprintTier: capturedTier || '',
           patternPicked: capturedPattern || '',
+          utmSource: utmSource,
+          utmMedium: utmMedium,
+          utmCampaign: utmCampaign,
           f1Score: fb.F1 || '', f2Score: fb.F2 || '', f3Score: fb.F3 || '',
           f4Score: fb.F4 || '', f5Answer: fb.F5 || '', f6Answer: fb.F6 || '',
           blueprintSnippet: String(blueprintText || '').substring(0, 500),
