@@ -538,6 +538,13 @@ function renderAssistantMessage(text) {
     window.blueprintHTML = sanitizedHTML;
     window.blueprintDelivered = true;
 
+    // GA4 funnel event: parent reached the Blueprint = interview complete.
+    // Guarded so it can fire at most once per page load.
+    if (!window.otsCompleteFired && window.otsTrack) {
+      window.otsCompleteFired = true;
+      otsTrack('interview_complete');
+    }
+
     // Extract a structured plain-text Blueprint (block elements separated by
     // blank lines) for the parent + internal emails. Stored now; the single
     // canonical transcript save fires later, at interview completion — NOT here.
@@ -760,6 +767,11 @@ function startSession() {
   window.saveConsent = !!(consentBox && consentBox.checked);
 
   window.sessionStarted = true;
+
+  // GA4 funnel event: the parent passed name+email validation and is starting
+  // the interview. Fires once per session start; carries UTM attribution.
+  if (window.otsTrack) otsTrack('interview_start');
+
   const beginBtn = document.getElementById('beginButton');
   if (beginBtn) { beginBtn.disabled = true; beginBtn.textContent = 'Beginning…'; }
 
