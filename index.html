@@ -765,14 +765,14 @@
 
     <div class="intake-field">
       <label class="intake-label" for="inputName">Your First Name</label>
-      <input class="intake-input" type="text" id="inputName" placeholder="First name only" autocomplete="given-name">
-      <p class="intake-error" id="nameError">Please tell us your first name — the interview is addressed to you.</p>
+      <input class="intake-input" type="text" id="inputName" placeholder="First name only" autocomplete="given-name" required aria-required="true" aria-describedby="nameError">
+      <p class="intake-error" id="nameError" role="alert">Please tell us your first name — the interview is addressed to you.</p>
     </div>
 
     <div class="intake-field">
       <label class="intake-label" for="inputEmail">Your Email</label>
-      <input class="intake-input" type="email" id="inputEmail" placeholder="Where we'll send your Blueprint" autocomplete="email">
-      <p class="intake-error" id="emailError">Please enter a valid email — it's where your Blueprint goes.</p>
+      <input class="intake-input" type="email" id="inputEmail" placeholder="Where we'll send your Blueprint" autocomplete="email" required aria-required="true" inputmode="email" aria-describedby="emailError">
+      <p class="intake-error" id="emailError" role="alert">Please enter a valid email — it's where your Blueprint goes.</p>
     </div>
 
     <label class="intake-consent" for="inputConsent">
@@ -800,11 +800,11 @@
     </header>
 
     <div class="messages-area" id="messagesArea">
-      <div id="messages"></div>
+      <div id="messages" role="log" aria-live="polite" aria-label="Interview conversation"></div>
     </div>
 
     <div class="input-area">
-      <textarea id="userInput" placeholder="Type your answer here..." rows="2"></textarea>
+      <textarea id="userInput" placeholder="Type your answer here..." rows="2" aria-label="Your answer"></textarea>
       <button class="send-btn" id="sendButton">Send</button>
     </div>
     <p class="input-hint">Enter to send &middot; Shift+Enter for a new line &middot; <button type="button" class="clear-saved" id="clearSavedBtn" hidden>Clear my saved interview</button></p>
